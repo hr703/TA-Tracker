@@ -450,7 +450,7 @@ textarea{resize:vertical;min-height:72px}
       <!-- Interviewer 1 (L1) -->
       <div class="form-group full" style="background:#eff6ff;border-radius:8px;padding:12px;border:1px solid #bfdbfe">
         <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">&#128100; Interviewer 1 — Round L1</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="form-group" style="margin:0">
             <label>Name</label>
             <input type="text" id="cand-int1-name" placeholder="Interviewer name">
@@ -460,12 +460,16 @@ textarea{resize:vertical;min-height:72px}
             <input type="email" id="cand-int1-email" placeholder="email@cuemath.com">
           </div>
           <div class="form-group" style="margin:0">
-            <label>Interview Date</label>
+            <label>Date</label>
             <input type="date" id="cand-int1-date">
           </div>
           <div class="form-group" style="margin:0">
-            <label>Time</label>
+            <label>Start Time</label>
             <input type="time" id="cand-int1-time">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>End Time</label>
+            <input type="time" id="cand-int1-endtime">
           </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px">
@@ -494,11 +498,12 @@ textarea{resize:vertical;min-height:72px}
         ${[2,3,4].map(n=>`
         <div style="border-bottom:1px dashed #bbf7d0;margin-bottom:10px;padding-bottom:10px">
           <div style="font-size:11px;font-weight:600;color:#065f46;margin-bottom:6px">Interviewer ${n-1}</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">
             <div class="form-group" style="margin:0"><label>Name</label><input type="text" id="cand-int${n}-name" placeholder="Name"></div>
             <div class="form-group" style="margin:0"><label>Email</label><input type="email" id="cand-int${n}-email" placeholder="email@cuemath.com"></div>
             <div class="form-group" style="margin:0"><label>Date</label><input type="date" id="cand-int${n}-date"></div>
-            <div class="form-group" style="margin:0"><label>Time</label><input type="time" id="cand-int${n}-time"></div>
+            <div class="form-group" style="margin:0"><label>Start Time</label><input type="time" id="cand-int${n}-time"></div>
+            <div class="form-group" style="margin:0"><label>End Time</label><input type="time" id="cand-int${n}-endtime"></div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-bottom:8px">
             <div class="form-group" style="margin:0"><label>Result</label>
@@ -517,11 +522,12 @@ textarea{resize:vertical;min-height:72px}
       <!-- Final Round — 1 Senior Interviewer -->
       <div class="form-group full" style="background:#fdf4ff;border-radius:8px;padding:12px;border:1px solid #e9d5ff">
         <div style="font-size:12px;font-weight:700;color:#6d28d9;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">&#127942; Final Round — Senior Interviewer</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="form-group" style="margin:0"><label>Name</label><input type="text" id="cand-intF-name" placeholder="Director / VP / Head"></div>
           <div class="form-group" style="margin:0"><label>Email</label><input type="email" id="cand-intF-email" placeholder="email@cuemath.com"></div>
           <div class="form-group" style="margin:0"><label>Date</label><input type="date" id="cand-intF-date"></div>
-          <div class="form-group" style="margin:0"><label>Time</label><input type="time" id="cand-intF-time"></div>
+          <div class="form-group" style="margin:0"><label>Start Time</label><input type="time" id="cand-intF-time"></div>
+          <div class="form-group" style="margin:0"><label>End Time</label><input type="time" id="cand-intF-endtime"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px">
           <div class="form-group" style="margin:0"><label>Result</label>
@@ -575,22 +581,17 @@ textarea{resize:vertical;min-height:72px}
         <label>Interviewer Email *</label>
         <input type="email" id="sch-int-email" placeholder="ravi.k@cuemath.com">
       </div>
-      <div class="form-group">
+      <div class="form-group full">
         <label>Interview Date *</label>
         <input type="date" id="sch-int-date">
       </div>
       <div class="form-group">
-        <label>Interview Time *</label>
+        <label>Start Time *</label>
         <input type="time" id="sch-int-time" value="10:00">
       </div>
-      <div class="form-group full">
-        <label>Duration</label>
-        <select id="sch-duration">
-          <option value="1">1 Hour</option>
-          <option value="0.5">30 Minutes</option>
-          <option value="1.5">1.5 Hours</option>
-          <option value="2">2 Hours</option>
-        </select>
+      <div class="form-group">
+        <label>End Time *</label>
+        <input type="time" id="sch-int-endtime" value="11:00">
       </div>
     </div>
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-top:14px;font-size:12px;color:#065f46">
@@ -1023,10 +1024,11 @@ function openCandModal() {
   document.getElementById('cand-int1-email').value = '';
   document.getElementById('cand-int1-date').value = '';
   document.getElementById('cand-int1-time').value = '';
+  document.getElementById('cand-int1-endtime').value = '';
   document.getElementById('cand-int1-result').value = '';
   document.getElementById('cand-int1-feedback').value = '';
-  [2,3,4].forEach(n=>{ ['name','email','date','time','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-int${n}-${f}`); if(el) el.value=''; }); });
-  ['name','email','date','time','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-intF-${f}`); if(el) el.value=''; });
+  [2,3,4].forEach(n=>{ ['name','email','date','time','endtime','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-int${n}-${f}`); if(el) el.value=''; }); });
+  ['name','email','date','time','endtime','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-intF-${f}`); if(el) el.value=''; });
   document.getElementById('cand-notes').value = '';
   populatePosFilter();
   document.getElementById('candModal').classList.add('active');
@@ -1057,10 +1059,11 @@ function editCandidate(id) {
   document.getElementById('cand-int1-email').value = c.int1Email||'';
   document.getElementById('cand-int1-date').value = c.int1Date||'';
   document.getElementById('cand-int1-time').value = c.int1Time||'';
+  document.getElementById('cand-int1-endtime').value = c.int1Endtime||'';
   document.getElementById('cand-int1-result').value = c.int1Result||'';
   document.getElementById('cand-int1-feedback').value = c.int1Feedback||'';
-  [2,3,4].forEach(n=>{ ['name','email','date','time','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-int${n}-${f}`); if(el) el.value=c[`int${n}${f.charAt(0).toUpperCase()+f.slice(1)}`]||''; }); });
-  ['name','email','date','time','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-intF-${f}`); if(el) el.value=c[`intF${f.charAt(0).toUpperCase()+f.slice(1)}`]||''; });
+  [2,3,4].forEach(n=>{ ['name','email','date','time','endtime','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-int${n}-${f}`); if(el) el.value=c[`int${n}${f.charAt(0).toUpperCase()+f.slice(1)}`]||''; }); });
+  ['name','email','date','time','endtime','result','feedback'].forEach(f=>{ const el=document.getElementById(`cand-intF-${f}`); if(el) el.value=c[`intF${f.charAt(0).toUpperCase()+f.slice(1)}`]||''; });
   document.getElementById('cand-notes').value = c.notes||'';
   populatePosFilter();
   document.getElementById('cand-pos').value = c.posId||'';
@@ -1090,10 +1093,11 @@ function saveCandidate() {
     int1Email:    document.getElementById('cand-int1-email').value.trim(),
     int1Date:     document.getElementById('cand-int1-date').value,
     int1Time:     document.getElementById('cand-int1-time').value,
+    int1Endtime:  document.getElementById('cand-int1-endtime').value,
     int1Result:   document.getElementById('cand-int1-result').value,
     int1Feedback: document.getElementById('cand-int1-feedback').value.trim(),
-    ...[2,3,4].reduce((acc,n)=>{ ['Name','Email','Date','Time','Result','Feedback'].forEach(f=>{ acc[`int${n}${f}`]=document.getElementById(`cand-int${n}-${f.toLowerCase()}`)?.value?.trim()||''; }); return acc; },{}),
-    ...['Name','Email','Date','Time','Result','Feedback'].reduce((acc,f)=>{ acc[`intF${f}`]=document.getElementById(`cand-intF-${f.toLowerCase()}`)?.value?.trim()||''; return acc; },{}),
+    ...[2,3,4].reduce((acc,n)=>{ ['Name','Email','Date','Time','Endtime','Result','Feedback'].forEach(f=>{ acc[`int${n}${f}`]=document.getElementById(`cand-int${n}-${f.toLowerCase()}`)?.value?.trim()||''; }); return acc; },{}),
+    ...['Name','Email','Date','Time','Endtime','Result','Feedback'].reduce((acc,f)=>{ acc[`intF${f}`]=document.getElementById(`cand-intF-${f.toLowerCase()}`)?.value?.trim()||''; return acc; },{}),
     notes:         document.getElementById('cand-notes').value.trim(),
     cvData:        document.getElementById('cand-cv-data').value || undefined,
     cvName:        document.getElementById('cand-cv-file').files[0]?.name || undefined,
@@ -1138,29 +1142,33 @@ function loadDummyData(){
 
 // ── CALENDAR INVITE ───────────────────────────────────────────────────
 async function sendCalendarInvite(round, intNum) {
-  let name, email, date, time, statusId;
+  let name, email, date, time, endtime, statusId;
   if(round === 'L1') {
     name = document.getElementById('cand-int1-name').value.trim();
     email = document.getElementById('cand-int1-email').value.trim();
     date = document.getElementById('cand-int1-date').value;
     time = document.getElementById('cand-int1-time').value || '10:00';
+    endtime = document.getElementById('cand-int1-endtime').value || '11:00';
     statusId = 'invite-status-1';
   } else if(round === 'L2') {
     name = document.getElementById(`cand-int${intNum}-name`).value.trim();
     email = document.getElementById(`cand-int${intNum}-email`).value.trim();
     date = document.getElementById(`cand-int${intNum}-date`).value;
     time = document.getElementById(`cand-int${intNum}-time`).value || '11:00';
+    endtime = document.getElementById(`cand-int${intNum}-endtime`).value || '12:00';
     statusId = `invite-status-${intNum}`;
   } else {
     name = document.getElementById('cand-intF-name').value.trim();
     email = document.getElementById('cand-intF-email').value.trim();
     date = document.getElementById('cand-intF-date').value;
     time = document.getElementById('cand-intF-time').value || '12:00';
+    endtime = document.getElementById('cand-intF-endtime').value || '13:00';
     statusId = 'invite-status-F';
   }
 
   if(!name || !email){ alert('Interviewer ka naam aur email fill karo pehle.'); return; }
   if(!date){ alert('Interview date select karo pehle.'); return; }
+  if(endtime <= time){ alert('End time, start time se baad honi chahiye.'); return; }
 
   const candName = document.getElementById('cand-name').value.trim() || 'Candidate';
   const candEmail = document.getElementById('cand-email').value.trim();
@@ -1169,10 +1177,8 @@ async function sendCalendarInvite(round, intNum) {
   const posTitle = pos ? `${pos.role}${pos.designation?' / '+pos.designation:''} (${pos.dept})` : 'Position';
 
   const doSend = async () => {
-    const [h, m] = time.split(':').map(Number);
-    const endH = String(h + 1).padStart(2,'0');
     const startDT = `${date}T${time}:00`;
-    const endDT   = `${date}T${endH}:${String(m).padStart(2,'0')}:00`;
+    const endDT   = `${date}T${endtime}:00`;
 
     const attendees = [{ email }];
     if(candEmail) attendees.push({ email: candEmail });
@@ -1404,11 +1410,12 @@ async function confirmSchedule() {
   const intName  = document.getElementById('sch-int-name').value.trim();
   const intEmail = document.getElementById('sch-int-email').value.trim();
   const intDate  = document.getElementById('sch-int-date').value;
-  const intTime  = document.getElementById('sch-int-time').value || '10:00';
-  const dur      = parseFloat(document.getElementById('sch-duration').value) || 1;
+  const intTime    = document.getElementById('sch-int-time').value || '10:00';
+  const intEndTime = document.getElementById('sch-int-endtime').value || '11:00';
 
   if(!intName || !intEmail) { alert('Interviewer naam aur email zaroori hai.'); return; }
   if(!intDate) { alert('Interview date select karo.'); return; }
+  if(intEndTime <= intTime) { alert('End time, start time se baad honi chahiye.'); return; }
 
   const c = candidates.find(x => x.id == candId);
   if(!c) return;
@@ -1437,16 +1444,11 @@ async function confirmSchedule() {
   const pos = positions.find(p => p.id == c.posId);
   const posTitle = pos ? `${pos.role}${pos.designation?' / '+pos.designation:''} (${pos.dept})` : 'Position';
 
-  const [h, m] = intTime.split(':').map(Number);
-  const totalMins = h * 60 + m + dur * 60;
-  const endH = String(Math.floor(totalMins/60) % 24).padStart(2,'0');
-  const endM = String(totalMins % 60).padStart(2,'0');
-
   const event = {
     summary: `${next} — ${c.name} | ${posTitle}`,
     description: `Round: ${next}\nCandidate: ${c.name} (${c.email||''})\nPosition: ${posTitle}\nOrganized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})`,
     start: { dateTime: `${intDate}T${intTime}:00`, timeZone: 'Asia/Kolkata' },
-    end:   { dateTime: `${intDate}T${endH}:${endM}:00`, timeZone: 'Asia/Kolkata' },
+    end:   { dateTime: `${intDate}T${intEndTime}:00`, timeZone: 'Asia/Kolkata' },
     attendees: [
       { email: intEmail },
       ...(c.email ? [{ email: c.email }] : [])
