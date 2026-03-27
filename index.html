@@ -62,6 +62,7 @@ tr:hover td{background:#f8fafc}
 .badge-low{background:#d1fae5;color:#065f46}
 .badge-applied{background:#e0e7ff;color:#3730a3}
 .badge-screened{background:#fef9c3;color:#854d0e}
+.badge-assignment{background:#fef9c3;color:#713f12}
 .badge-l1{background:#dbeafe;color:#1d4ed8}
 .badge-l2{background:#e0f2fe;color:#0369a1}
 .badge-final{background:#fdf4ff;color:#6d28d9}
@@ -218,9 +219,9 @@ textarea{resize:vertical;min-height:72px}
         </select>
         <select id="cand-filter-stage" onchange="renderCandidates()">
           <option value="">All Stages</option>
-          <option>Applied</option><option>Screened</option><option>Interview L1</option>
-          <option>Interview L2</option><option>Final Round</option><option>HR Round</option>
-          <option>Offer</option><option>Joined</option><option>Rejected</option><option>Withdrawn</option>
+          <option>Applied</option><option>Screened</option><option>Assignment</option>
+          <option>Interview L1</option><option>Interview L2</option><option>Final Round</option>
+          <option>HR Round</option><option>Offer</option><option>Joined</option><option>Rejected</option><option>Withdrawn</option>
         </select>
         <select id="cand-filter-source" onchange="renderCandidates()">
           <option value="">All Sources</option>
@@ -409,9 +410,9 @@ textarea{resize:vertical;min-height:72px}
       <div class="form-group">
         <label>Current Stage</label>
         <select id="cand-stage">
-          <option>Applied</option><option>Screened</option><option>Interview L1</option>
-          <option>Interview L2</option><option>Final Round</option><option>HR Round</option>
-          <option>Offer</option><option>Joined</option><option>Rejected</option><option>Withdrawn</option>
+          <option>Applied</option><option>Screened</option><option>Assignment</option>
+          <option>Interview L1</option><option>Interview L2</option><option>Final Round</option>
+          <option>HR Round</option><option>Offer</option><option>Joined</option><option>Rejected</option><option>Withdrawn</option>
         </select>
       </div>
       <div class="form-group">
@@ -602,7 +603,7 @@ function today() { return new Date().toISOString().slice(0,10); }
 
 function stageBadge(s) {
   const map = {
-    'Applied':'applied','Screened':'screened','Interview L1':'l1','Interview L2':'l2',
+    'Applied':'applied','Screened':'screened','Assignment':'assignment','Interview L1':'l1','Interview L2':'l2',
     'Final Round':'final','HR Round':'hr','Offer':'offer','Joined':'joined','Rejected':'rejected','Withdrawn':'withdrawn'
   };
   return `<span class="badge badge-${map[s]||'applied'}">${s}</span>`;
@@ -1031,7 +1032,9 @@ function loadDummyData(){
     {id:newId(),posId:p1.id,name:'Priya Mehta',email:'priya.m@gmail.com',phone:'9876543211',source:'LinkedIn',stage:'Interview L1',currentCtc:500000,expectedCtc:750000,noticePeriod:'15 days',appliedDate:'2026-03-08',lastUpdate:'2026-03-18',int1Name:'Kiranpreet Kaur',int1Email:'kiranpreet.kaur@cuemath.com',int1Date:'2026-03-18',int1Result:'Pass',int1Feedback:'Good communication',notes:''},
     {id:newId(),posId:p1.id,name:'Amit Singh',email:'amit.s@gmail.com',phone:'9876543212',source:'Referral',stage:'Rejected',currentCtc:400000,expectedCtc:700000,noticePeriod:'Immediate',appliedDate:'2026-03-02',lastUpdate:'2026-03-10',int1Name:'Kiranpreet Kaur',int1Email:'kiranpreet.kaur@cuemath.com',int1Date:'2026-03-10',int1Result:'Fail',int1Feedback:'Weak in DSA',rejectionReason:'Failed L1',notes:''},
     {id:newId(),posId:p2.id,name:'Sneha Gupta',email:'sneha.g@gmail.com',phone:'9876543213',source:'Naukri',stage:'Final Round',currentCtc:800000,expectedCtc:1200000,noticePeriod:'60 days',appliedDate:'2026-03-12',lastUpdate:'2026-03-22',int1Name:'Ajay Yadav',int1Email:'ajay.yadav@cuemath.com',int1Date:'2026-03-15',int1Result:'Pass',int1Feedback:'Excellent',int2Name:'Manan Shah',int2Email:'manan@cuemath.com',int2Date:'2026-03-19',int2Result:'Pass',int2Feedback:'Good strategy',intFName:'CEO',intFEmail:'ceo@cuemath.com',intFDate:'2026-03-25',intFResult:'',intFeedback:'',notes:'Strong profile'},
-    {id:newId(),posId:p3.id,name:'Vikram Nair',email:'vikram.n@gmail.com',phone:'9876543214',source:'Walk-in',stage:'Screened',currentCtc:350000,expectedCtc:500000,noticePeriod:'Immediate',appliedDate:'2026-03-18',lastUpdate:'2026-03-19',notes:'CA fresher'}
+    {id:newId(),posId:p3.id,name:'Vikram Nair',email:'vikram.n@gmail.com',phone:'9876543214',source:'Walk-in',stage:'Screened',currentCtc:350000,expectedCtc:500000,noticePeriod:'Immediate',appliedDate:'2026-03-18',lastUpdate:'2026-03-19',notes:'CA fresher'},
+    {id:newId(),posId:p1.id,name:'Divya Reddy',email:'divya.r@gmail.com',phone:'9876543215',source:'LinkedIn',stage:'Assignment',currentCtc:480000,expectedCtc:720000,noticePeriod:'30 days',appliedDate:'2026-03-14',lastUpdate:'2026-03-21',notes:'Assignment sent — React task, deadline 28 Mar'},
+    {id:newId(),posId:p2.id,name:'Karan Malhotra',email:'karan.m@gmail.com',phone:'9876543216',source:'Naukri',stage:'HR Round',currentCtc:950000,expectedCtc:1400000,noticePeriod:'45 days',appliedDate:'2026-03-10',lastUpdate:'2026-03-24',int1Name:'Ajay Yadav',int1Email:'ajay.yadav@cuemath.com',int1Date:'2026-03-14',int1Result:'Pass',int1Feedback:'Excellent marketing strategy',int2Name:'Manan Shah',int2Email:'manan@cuemath.com',int2Date:'2026-03-20',int2Result:'Pass',int2Feedback:'Strong digital background',intFName:'Director',intFEmail:'director@cuemath.com',intFDate:'2026-03-23',intFResult:'Pass',intFeedback:'Great culture fit',notes:'Very strong profile'}
   );
   saveData(); renderAll();
   alert('Dummy data loaded! ✅');
@@ -1157,7 +1160,7 @@ function downloadFile(id, type) {
 }
 
 // ── MOVE TO NEXT ROUND ───────────────────────────────────────────────
-const STAGE_ORDER = ['Applied','Screened','Interview L1','Interview L2','Final Round','HR Round','Offer','Joined'];
+const STAGE_ORDER = ['Applied','Screened','Assignment','Interview L1','Interview L2','Final Round','HR Round','Offer','Joined'];
 
 function getNextStageBtn(c) {
   const idx = STAGE_ORDER.indexOf(c.stage);
