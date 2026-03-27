@@ -608,6 +608,7 @@ textarea{resize:vertical;min-height:72px}
 const API = '';
 const TOKEN = 'ta-secure-2025';
 const GCAL_CLIENT_ID = '18449661121-lco0mhthbsb55jcmd2gv6id9i6mkn2gb.apps.googleusercontent.com';
+const TA_TEAM = ['kiranpreet.kaur@cuemath.com','lipika.gandhi@cuemath.com'];
 let positions = [], candidates = [], currentUser = null;
 let calendarToken = null, tokenClient = null, _pendingInvite = null;
 
@@ -1182,6 +1183,8 @@ async function sendCalendarInvite(round, intNum) {
 
     const attendees = [{ email }];
     if(candEmail) attendees.push({ email: candEmail });
+    TA_TEAM.forEach(e=>{ if(e!==email && e!==candEmail) attendees.push({email:e}); });
+    if(currentUser?.email && !attendees.find(a=>a.email===currentUser.email)) attendees.push({email:currentUser.email});
 
     const event = {
       summary: `${round} Interview — ${candName} | ${posTitle}`,
@@ -1451,7 +1454,9 @@ async function confirmSchedule() {
     end:   { dateTime: `${intDate}T${intEndTime}:00`, timeZone: 'Asia/Kolkata' },
     attendees: [
       { email: intEmail },
-      ...(c.email ? [{ email: c.email }] : [])
+      ...(c.email ? [{ email: c.email }] : []),
+      ...TA_TEAM.filter(e=>e!==intEmail && e!==c.email).map(e=>({email:e})),
+      ...(currentUser?.email && currentUser.email!==intEmail ? [{email:currentUser.email}] : [])
     ],
     conferenceData: { createRequest: { requestId: 'ta-'+Date.now(), conferenceSolutionKey:{ type:'hangoutsMeet' } } },
     sendUpdates: 'all'
