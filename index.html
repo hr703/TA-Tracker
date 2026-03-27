@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TA Tracker — Cuemath</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh}
+:root{--primary:#1e3a5f;--accent:#0ea5e9;--green:#10b981;--orange:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--muted:#64748b}
+/* LOGIN */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#1e3a5f 0%,#0ea5e9 100%)}
+.login-box{background:#fff;border-radius:20px;padding:48px 40px;text-align:center;width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.login-logo{width:56px;height:56px;background:linear-gradient(135deg,#1e3a5f,#0ea5e9);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px;color:#fff;font-weight:800}
+.login-box h2{color:#1e3a5f;font-size:22px;margin-bottom:6px}
+.login-box p{color:#64748b;font-size:14px;margin-bottom:28px}
+/* APP */
+#appScreen{display:none}
+.topbar{background:linear-gradient(135deg,#1e3a5f,#2d5986);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;font-weight:800}
+.topbar-title{color:#fff;font-size:18px;font-weight:700}
+.topbar-sub{color:rgba(255,255,255,.7);font-size:12px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-badge{background:rgba(255,255,255,.15);color:#fff;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500}
+.btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 14px;border-radius:8px;font-size:13px;cursor:pointer}
+.btn-logout:hover{background:rgba(255,255,255,.2)}
+.tab-nav{background:#fff;border-bottom:2px solid #e2e8f0;padding:0 24px;display:flex;gap:4px;overflow-x:auto}
+.tab-btn{padding:14px 18px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:600;color:#64748b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .2s}
+.tab-btn:hover{color:#1e3a5f;background:#f8fafc}
+.tab-btn.active{color:#1e3a5f;border-bottom-color:#0ea5e9}
+.container{max-width:1400px;margin:0 auto;padding:24px}
+.tab-content{display:none}.tab-content.active{display:block}
+.sec-title{font-size:20px;font-weight:800;color:var(--primary);margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.card{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.08);border:1px solid var(--border);margin-bottom:16px}
+.card-hdr{padding:12px 18px;font-weight:700;font-size:14px;color:#fff;border-radius:12px 12px 0 0;letter-spacing:.3px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
+.kpi-card{background:#fff;border-radius:12px;padding:20px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.kpi-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.kpi-value{font-size:28px;font-weight:800;color:var(--primary)}
+.kpi-sub{font-size:12px;color:#94a3b8;margin-top:4px}
+.btn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:linear-gradient(135deg,#1e3a5f,#0ea5e9);color:#fff}
+.btn-primary:hover{opacity:.9}
+.btn-success{background:linear-gradient(135deg,#065f46,#10b981);color:#fff}
+.btn-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.btn-secondary{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.btn-sm{padding:5px 10px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f8fafc;padding:10px 12px;text-align:left;color:var(--primary);font-weight:700;border-bottom:2px solid var(--border)}
+td{padding:10px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tr:hover td{background:#f8fafc}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-open{background:#dbeafe;color:#1d4ed8}
+.badge-inprogress{background:#fef3c7;color:#92400e}
+.badge-onhold{background:#f3e8ff;color:#6d28d9}
+.badge-closed{background:#d1fae5;color:#065f46}
+.badge-high{background:#fee2e2;color:#991b1b}
+.badge-medium{background:#fef3c7;color:#92400e}
+.badge-low{background:#d1fae5;color:#065f46}
+.badge-applied{background:#e0e7ff;color:#3730a3}
+.badge-screened{background:#fef9c3;color:#854d0e}
+.badge-l1{background:#dbeafe;color:#1d4ed8}
+.badge-l2{background:#e0f2fe;color:#0369a1}
+.badge-hr{background:#f3e8ff;color:#6d28d9}
+.badge-offer{background:#fef3c7;color:#92400e}
+.badge-joined{background:#d1fae5;color:#065f46}
+.badge-rejected{background:#fee2e2;color:#991b1b}
+.badge-withdrawn{background:#f1f5f9;color:#64748b}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.modal-overlay.active{display:flex}
+.modal-box{background:#fff;border-radius:16px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-title{font-size:18px;font-weight:700;color:var(--primary);margin-bottom:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group.full{grid-column:1/-1}
+label{font-size:12px;font-weight:600;color:#475569;text-transform:uppercase;letter-spacing:.5px}
+input,select,textarea{padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;color:#1e293b;background:#fff}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#0ea5e9;box-shadow:0 0 0 3px rgba(14,165,233,.1)}
+textarea{resize:vertical;min-height:72px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #e2e8f0}
+.empty-msg{text-align:center;padding:32px;color:#94a3b8;font-style:italic}
+.funnel-bar{height:32px;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:12px;font-weight:600;color:#fff;margin-bottom:6px;transition:width .5s}
+.search-bar{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.search-bar input,.search-bar select{padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">TA</div>
+    <h2>TA Tracker</h2>
+    <p>Talent Acquisition — Cuemath HR</p>
+    <div id="g_id_onload"
+      data-client_id="359149360904-1j4v8bu4on34thl2p6d2t128nq5pilvn.apps.googleusercontent.com"
+      data-callback="handleGoogleLogin"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="sign_in_with"
+      data-shape="rectangular"
+      data-logo_alignment="left">
+    </div>
+    <p id="loginError" style="color:#ef4444;font-size:13px;margin-top:12px;display:none"></p>
+  </div>
+</div>
+
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo">TA</div>
+      <div>
+        <div class="topbar-title">TA Tracker</div>
+        <div class="topbar-sub">Talent Acquisition Dashboard — Cuemath</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="user-badge" id="userBadge"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('dashboard',this)">&#128200; Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('positions',this)">&#128203; Open Positions</button>
+    <button class="tab-btn" onclick="switchTab('pipeline',this)">&#128101; Candidate Pipeline</button>
+    <button class="tab-btn" onclick="switchTab('reports',this)">&#128196; Reports</button>
+  </div>
+
+  <div class="container">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="sec-title">Dashboard</div>
+      <div class="kpi-grid" id="dash-kpis"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9)">Position Status</div>
+          <div style="padding:16px"><canvas id="chartPosStatus" height="220"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#065f46,#10b981)">Candidate Stage Funnel</div>
+          <div style="padding:16px"><canvas id="chartFunnel" height="220"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#6d28d9,#a78bfa)">Source-wise Candidates</div>
+          <div style="padding:16px"><canvas id="chartSource" height="220"></canvas></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#d97706,#fbbf24)">Department-wise Open Positions</div>
+          <div style="padding:16px"><canvas id="chartDeptPos" height="200"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#9a3412,#fb923c)">Priority Breakdown</div>
+          <div style="padding:16px"><canvas id="chartPriority" height="200"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ POSITIONS ══ -->
+    <div class="tab-content" id="tab-positions">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div class="sec-title" style="margin:0;border:none;padding:0">Open Positions</div>
+        <button class="btn btn-primary" onclick="openPosModal()">+ Add Position</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="pos-search" placeholder="Search by role / dept..." oninput="renderPositions()" style="width:220px">
+        <select id="pos-filter-status" onchange="renderPositions()">
+          <option value="">All Status</option>
+          <option>Open</option><option>In Progress</option><option>On Hold</option><option>Closed</option>
+        </select>
+        <select id="pos-filter-dept" onchange="renderPositions()">
+          <option value="">All Departments</option>
+        </select>
+        <select id="pos-filter-priority" onchange="renderPositions()">
+          <option value="">All Priority</option>
+          <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Pos ID</th><th>Department</th><th>Role</th><th>Level</th>
+              <th>Priority</th><th>Status</th><th>Recruiter</th>
+              <th>Open Date</th><th>Target Date</th><th>Days Open</th>
+              <th>Candidates</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="pos-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PIPELINE ══ -->
+    <div class="tab-content" id="tab-pipeline">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div class="sec-title" style="margin:0;border:none;padding:0">Candidate Pipeline</div>
+        <button class="btn btn-primary" onclick="openCandModal()">+ Add Candidate</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="cand-search" placeholder="Search by name / email..." oninput="renderCandidates()" style="width:220px">
+        <select id="cand-filter-pos" onchange="renderCandidates()">
+          <option value="">All Positions</option>
+        </select>
+        <select id="cand-filter-stage" onchange="renderCandidates()">
+          <option value="">All Stages</option>
+          <option>Applied</option><option>Screened</option><option>Interview L1</option>
+          <option>Interview L2</option><option>HR Round</option><option>Offer</option>
+          <option>Joined</option><option>Rejected</option><option>Withdrawn</option>
+        </select>
+        <select id="cand-filter-source" onchange="renderCandidates()">
+          <option value="">All Sources</option>
+          <option>Naukri</option><option>LinkedIn</option><option>Referral</option>
+          <option>Walk-in</option><option>Agency</option><option>Other</option>
+        </select>
+      </div>
+      <div class="card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Name</th><th>Position</th><th>Dept</th><th>Source</th>
+              <th>Stage</th><th>Current CTC</th><th>Expected CTC</th>
+              <th>Notice Period</th><th>Applied</th><th>Last Update</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="cand-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REPORTS ══ -->
+    <div class="tab-content" id="tab-reports">
+      <div class="sec-title">Reports & Analytics</div>
+      <div class="kpi-grid" id="report-kpis"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#1e3a5f,#0ea5e9)">TAT — Days to Fill (Closed Positions)</div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Position</th><th>Dept</th><th>Role</th><th>Open Date</th><th>Closed Date</th><th>Days Taken</th>
+              </tr></thead>
+              <tbody id="tat-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#065f46,#10b981)">Source Conversion Rate</div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Source</th><th>Total</th><th>Joined</th><th>Rejected</th><th>Conversion %</th>
+              </tr></thead>
+              <tbody id="source-conv-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#6d28d9,#a78bfa)">Stage Drop-off Analysis</div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Stage</th><th>Candidates</th><th>Dropped Here</th><th>Drop %</th>
+              </tr></thead>
+              <tbody id="dropoff-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr" style="background:linear-gradient(135deg,#9a3412,#fb923c)">Recruiter Performance</div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Recruiter</th><th>Positions</th><th>Closed</th><th>In Progress</th><th>Avg TAT</th>
+              </tr></thead>
+              <tbody id="recruiter-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /appScreen -->
+
+<!-- ADD/EDIT POSITION MODAL -->
+<div class="modal-overlay" id="posModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="modal-title" id="posModalTitle">Add Position</div>
+      <button onclick="closePosModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">&#10005;</button>
+    </div>
+    <input type="hidden" id="pos-id">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Department *</label>
+        <input type="text" id="pos-dept" placeholder="e.g. Engineering">
+      </div>
+      <div class="form-group">
+        <label>Role / Designation *</label>
+        <input type="text" id="pos-role" placeholder="e.g. Software Engineer">
+      </div>
+      <div class="form-group">
+        <label>Level</label>
+        <select id="pos-level">
+          <option value="">Select Level</option>
+          <option>Junior</option><option>Mid</option><option>Senior</option>
+          <option>Lead</option><option>Manager</option><option>Director</option><option>VP</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="pos-priority">
+          <option>High</option><option>Medium</option><option>Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="pos-status">
+          <option>Open</option><option>In Progress</option><option>On Hold</option><option>Closed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Assigned Recruiter</label>
+        <input type="text" id="pos-recruiter" placeholder="Recruiter name">
+      </div>
+      <div class="form-group">
+        <label>Open Date</label>
+        <input type="date" id="pos-opendate">
+      </div>
+      <div class="form-group">
+        <label>Target Close Date</label>
+        <input type="date" id="pos-targetdate">
+      </div>
+      <div class="form-group">
+        <label>Closed Date</label>
+        <input type="date" id="pos-closeddate">
+      </div>
+      <div class="form-group">
+        <label>No. of Openings</label>
+        <input type="number" id="pos-openings" value="1" min="1">
+      </div>
+      <div class="form-group full">
+        <label>Job Description / Notes</label>
+        <textarea id="pos-notes" placeholder="Brief JD or notes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closePosModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePosition()">Save Position</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT CANDIDATE MODAL -->
+<div class="modal-overlay" id="candModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div class="modal-title" id="candModalTitle">Add Candidate</div>
+      <button onclick="closeCandModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">&#10005;</button>
+    </div>
+    <input type="hidden" id="cand-id">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Candidate Name *</label>
+        <input type="text" id="cand-name" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label>Position *</label>
+        <select id="cand-pos"></select>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="cand-email" placeholder="email@example.com">
+      </div>
+      <div class="form-group">
+        <label>Phone</label>
+        <input type="text" id="cand-phone" placeholder="Mobile number">
+      </div>
+      <div class="form-group">
+        <label>Source</label>
+        <select id="cand-source">
+          <option>Naukri</option><option>LinkedIn</option><option>Referral</option>
+          <option>Walk-in</option><option>Agency</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Current Stage</label>
+        <select id="cand-stage">
+          <option>Applied</option><option>Screened</option><option>Interview L1</option>
+          <option>Interview L2</option><option>HR Round</option><option>Offer</option>
+          <option>Joined</option><option>Rejected</option><option>Withdrawn</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Current CTC (₹/month)</label>
+        <input type="number" id="cand-current-ctc" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Expected CTC (₹/month)</label>
+        <input type="number" id="cand-expected-ctc" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Notice Period</label>
+        <select id="cand-notice">
+          <option value="">Select</option>
+          <option>Immediate</option><option>15 days</option><option>30 days</option>
+          <option>45 days</option><option>60 days</option><option>90 days</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Applied Date</label>
+        <input type="date" id="cand-applied">
+      </div>
+      <div class="form-group">
+        <label>Last Update</label>
+        <input type="date" id="cand-lastupdate">
+      </div>
+      <div class="form-group">
+        <label>Rejection Reason</label>
+        <input type="text" id="cand-rejection" placeholder="If rejected...">
+      </div>
+      <div class="form-group full">
+        <label>Notes</label>
+        <textarea id="cand-notes" placeholder="Interview feedback, remarks..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCandModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCandidate()">Save Candidate</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const TOKEN = 'ta-secure-2025';
+let positions = [], candidates = [], currentUser = null;
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+function handleGoogleLogin(response) {
+  const payload = JSON.parse(atob(response.credential.split('.')[1]));
+  const email = payload.email || '';
+  if (!email.endsWith('@cuemath.com')) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = 'Access restricted to @cuemath.com accounts only.';
+    return;
+  }
+  currentUser = { email, name: payload.name || email };
+  document.getElementById('userBadge').textContent = currentUser.name;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  loadData();
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appScreen').style.display = 'none';
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────
+async function loadData() {
+  try {
+    const r = await fetch(API + '/api/data', { headers: { 'X-Auth-Token': TOKEN } });
+    const d = await r.json();
+    positions  = d.positions  || [];
+    candidates = d.candidates || [];
+  } catch(e) {
+    positions = []; candidates = [];
+  }
+  renderAll();
+}
+
+async function saveData() {
+  try {
+    await fetch(API + '/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth-Token': TOKEN },
+      body: JSON.stringify({ positions, candidates })
+    });
+  } catch(e) { console.error(e); }
+}
+
+function renderAll() {
+  renderDashboard();
+  renderPositions();
+  renderCandidates();
+  renderReports();
+  populatePosFilter();
+  populatePosDeptFilter();
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────
+function newId() { return Date.now() + Math.floor(Math.random()*1000); }
+function fmt(n) { return n ? '₹' + Math.round(n).toLocaleString('en-IN') : '-'; }
+function daysBetween(d1, d2) {
+  if (!d1) return null;
+  const t1 = new Date(d1), t2 = d2 ? new Date(d2) : new Date();
+  return Math.max(0, Math.round((t2 - t1) / (1000*60*60*24)));
+}
+function today() { return new Date().toISOString().slice(0,10); }
+
+function stageBadge(s) {
+  const map = {
+    'Applied':'applied','Screened':'screened','Interview L1':'l1','Interview L2':'l2',
+    'HR Round':'hr','Offer':'offer','Joined':'joined','Rejected':'rejected','Withdrawn':'withdrawn'
+  };
+  return `<span class="badge badge-${map[s]||'applied'}">${s}</span>`;
+}
+function statusBadge(s) {
+  const map = {'Open':'open','In Progress':'inprogress','On Hold':'onhold','Closed':'closed'};
+  return `<span class="badge badge-${map[s]||'open'}">${s}</span>`;
+}
+function priorityBadge(p) {
+  const map = {'High':'high','Medium':'medium','Low':'low'};
+  return `<span class="badge badge-${map[p]||'medium'}">${p||'-'}</span>`;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function renderDashboard() {
+  const open   = positions.filter(p=>p.status==='Open').length;
+  const inProg = positions.filter(p=>p.status==='In Progress').length;
+  const closed = positions.filter(p=>p.status==='Closed').length;
+  const total  = positions.length;
+  const totalCands = candidates.length;
+  const joined = candidates.filter(c=>c.stage==='Joined').length;
+  const offers = candidates.filter(c=>c.stage==='Offer').length;
+  const offerAccept = joined;
+
+  // Avg TAT for closed positions
+  const tatArr = positions.filter(p=>p.status==='Closed'&&p.openDate&&p.closedDate)
+    .map(p=>daysBetween(p.openDate, p.closedDate));
+  const avgTat = tatArr.length ? Math.round(tatArr.reduce((s,v)=>s+v,0)/tatArr.length) : 0;
+
+  document.getElementById('dash-kpis').innerHTML = [
+    {label:'Total Positions', value:total, sub:'All time', color:'#1e3a5f'},
+    {label:'Open', value:open, sub:'Actively hiring', color:'#1d4ed8'},
+    {label:'In Progress', value:inProg, sub:'Candidates in pipeline', color:'#92400e'},
+    {label:'Closed', value:closed, sub:'Filled', color:'#065f46'},
+    {label:'Total Candidates', value:totalCands, sub:'In pipeline', color:'#6d28d9'},
+    {label:'Offers Made', value:offers, sub:'Awaiting joining', color:'#d97706'},
+    {label:'Joined', value:joined, sub:'Successfully onboarded', color:'#10b981'},
+    {label:'Avg TAT', value:avgTat ? avgTat+'d' : '-', sub:'Days to fill (closed)', color:'#9a3412'},
+  ].map(k=>`<div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value" style="color:${k.color}">${k.value}</div>
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`).join('');
+
+  const tooltipStyle = {backgroundColor:'rgba(15,23,42,0.9)',titleFont:{size:13,weight:'bold'},bodyFont:{size:12},padding:12,cornerRadius:8};
+  const COLORS = ['#38bdf8','#fbbf24','#a78bfa','#34d399','#f43f5e','#fb923c','#06b6d4','#84cc16'];
+
+  // Position status chart
+  if(window._cPS) window._cPS.destroy();
+  window._cPS = new Chart(document.getElementById('chartPosStatus'),{
+    type:'doughnut',
+    data:{labels:['Open','In Progress','On Hold','Closed'],
+      datasets:[{data:[open, inProg,
+        positions.filter(p=>p.status==='On Hold').length, closed],
+        backgroundColor:['#3b82f6','#f59e0b','#8b5cf6','#10b981'],
+        borderWidth:3,borderColor:'#fff',hoverOffset:10}]},
+    options:{responsive:true,cutout:'60%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:10}},tooltip:{...tooltipStyle}}}
+  });
+
+  // Funnel chart
+  const STAGES = ['Applied','Screened','Interview L1','Interview L2','HR Round','Offer','Joined'];
+  const funnelData = STAGES.map(s=>candidates.filter(c=>c.stage===s).length);
+  if(window._cFunnel) window._cFunnel.destroy();
+  window._cFunnel = new Chart(document.getElementById('chartFunnel'),{
+    type:'bar',
+    data:{labels:STAGES,datasets:[{label:'Candidates',data:funnelData,
+      backgroundColor:STAGES.map((_,i)=>COLORS[i%COLORS.length]+'cc'),
+      borderColor:STAGES.map((_,i)=>COLORS[i%COLORS.length]),
+      borderWidth:2,borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{...tooltipStyle}},
+      scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}}}
+  });
+
+  // Source chart
+  const srcMap={};
+  candidates.forEach(c=>{ const s=c.source||'Other'; srcMap[s]=(srcMap[s]||0)+1; });
+  if(window._cSrc) window._cSrc.destroy();
+  window._cSrc = new Chart(document.getElementById('chartSource'),{
+    type:'pie',
+    data:{labels:Object.keys(srcMap),datasets:[{data:Object.values(srcMap),
+      backgroundColor:COLORS,borderWidth:3,borderColor:'#fff',hoverOffset:10}]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:10}},tooltip:{...tooltipStyle}}}
+  });
+
+  // Dept-wise open positions
+  const deptMap={};
+  positions.filter(p=>p.status!=='Closed').forEach(p=>{ const d=p.dept||'Unknown'; deptMap[d]=(deptMap[d]||0)+1; });
+  const depts=Object.entries(deptMap).sort((a,b)=>b[1]-a[1]);
+  if(window._cDept) window._cDept.destroy();
+  window._cDept = new Chart(document.getElementById('chartDeptPos'),{
+    type:'bar',
+    data:{labels:depts.map(([d])=>d),datasets:[{label:'Open Positions',data:depts.map(([,c])=>c),
+      backgroundColor:depts.map((_,i)=>COLORS[i%COLORS.length]+'cc'),
+      borderColor:depts.map((_,i)=>COLORS[i%COLORS.length]),
+      borderWidth:2,borderRadius:8,borderSkipped:false}]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{...tooltipStyle}},
+      scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},x:{grid:{display:false}}}}
+  });
+
+  // Priority chart
+  const priMap={'High':0,'Medium':0,'Low':0};
+  positions.forEach(p=>{ if(p.priority) priMap[p.priority]=(priMap[p.priority]||0)+1; });
+  if(window._cPri) window._cPri.destroy();
+  window._cPri = new Chart(document.getElementById('chartPriority'),{
+    type:'doughnut',
+    data:{labels:['High','Medium','Low'],datasets:[{data:[priMap.High,priMap.Medium,priMap.Low],
+      backgroundColor:['#ef4444','#f59e0b','#10b981'],borderWidth:3,borderColor:'#fff',hoverOffset:10}]},
+    options:{responsive:true,cutout:'55%',plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:14,padding:10}},tooltip:{...tooltipStyle}}}
+  });
+}
+
+// ── POSITIONS ─────────────────────────────────────────────────────────
+function renderPositions() {
+  const search = (document.getElementById('pos-search')?.value||'').toLowerCase();
+  const filterStatus = document.getElementById('pos-filter-status')?.value||'';
+  const filterDept = document.getElementById('pos-filter-dept')?.value||'';
+  const filterPriority = document.getElementById('pos-filter-priority')?.value||'';
+
+  let filtered = positions.filter(p=>{
+    const matchSearch = !search || (p.role||'').toLowerCase().includes(search) || (p.dept||'').toLowerCase().includes(search);
+    const matchStatus = !filterStatus || p.status===filterStatus;
+    const matchDept   = !filterDept   || p.dept===filterDept;
+    const matchPri    = !filterPriority || p.priority===filterPriority;
+    return matchSearch && matchStatus && matchDept && matchPri;
+  });
+
+  const tbody = document.getElementById('pos-table-body');
+  if(!filtered.length){ tbody.innerHTML='<tr><td colspan="12" class="empty-msg">No positions found</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(p=>{
+    const daysOpen = p.status==='Closed' ? daysBetween(p.openDate, p.closedDate) : daysBetween(p.openDate);
+    const daysStyle = daysOpen > 60 ? 'color:#ef4444;font-weight:700' : daysOpen > 30 ? 'color:#f59e0b;font-weight:600' : 'color:#10b981;font-weight:600';
+    const candCount = candidates.filter(c=>c.posId==p.id).length;
+    return `<tr>
+      <td style="font-weight:700;color:var(--primary)">${p.posCode||p.id}</td>
+      <td>${p.dept||'-'}</td>
+      <td style="font-weight:600">${p.role||'-'}</td>
+      <td>${p.level||'-'}</td>
+      <td>${priorityBadge(p.priority)}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td>${p.recruiter||'-'}</td>
+      <td>${p.openDate||'-'}</td>
+      <td style="color:${p.targetDate&&p.targetDate<today()&&p.status!=='Closed'?'#ef4444':'inherit'}">${p.targetDate||'-'}</td>
+      <td style="${daysStyle}">${daysOpen!==null?daysOpen+'d':'-'}</td>
+      <td><span style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">${candCount}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editPosition(${p.id})" style="margin-right:4px">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePosition(${p.id})">Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function populatePosDeptFilter() {
+  const sel = document.getElementById('pos-filter-dept');
+  if(!sel) return;
+  const depts = [...new Set(positions.map(p=>p.dept).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All Departments</option>' + depts.map(d=>`<option>${d}</option>`).join('');
+}
+
+function populatePosFilter() {
+  const sel = document.getElementById('cand-filter-pos');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">All Positions</option>' +
+    positions.map(p=>`<option value="${p.id}">${p.posCode||p.id} — ${p.role} (${p.dept})</option>`).join('');
+
+  const candPosEl = document.getElementById('cand-pos');
+  if(candPosEl) {
+    const saved = candPosEl.value;
+    candPosEl.innerHTML = '<option value="">Select Position</option>' +
+      positions.filter(p=>p.status!=='Closed').map(p=>`<option value="${p.id}">${p.posCode||p.id} — ${p.role} (${p.dept})</option>`).join('');
+    if(saved) candPosEl.value = saved;
+  }
+}
+
+function openPosModal(id) {
+  document.getElementById('posModalTitle').textContent = 'Add Position';
+  document.getElementById('pos-id').value = '';
+  document.getElementById('pos-dept').value = '';
+  document.getElementById('pos-role').value = '';
+  document.getElementById('pos-level').value = '';
+  document.getElementById('pos-priority').value = 'High';
+  document.getElementById('pos-status').value = 'Open';
+  document.getElementById('pos-recruiter').value = '';
+  document.getElementById('pos-opendate').value = today();
+  document.getElementById('pos-targetdate').value = '';
+  document.getElementById('pos-closeddate').value = '';
+  document.getElementById('pos-openings').value = '1';
+  document.getElementById('pos-notes').value = '';
+  document.getElementById('posModal').classList.add('active');
+}
+
+function closePosModal() { document.getElementById('posModal').classList.remove('active'); }
+
+function editPosition(id) {
+  const p = positions.find(x=>x.id==id);
+  if(!p) return;
+  document.getElementById('posModalTitle').textContent = 'Edit Position';
+  document.getElementById('pos-id').value = p.id;
+  document.getElementById('pos-dept').value = p.dept||'';
+  document.getElementById('pos-role').value = p.role||'';
+  document.getElementById('pos-level').value = p.level||'';
+  document.getElementById('pos-priority').value = p.priority||'High';
+  document.getElementById('pos-status').value = p.status||'Open';
+  document.getElementById('pos-recruiter').value = p.recruiter||'';
+  document.getElementById('pos-opendate').value = p.openDate||'';
+  document.getElementById('pos-targetdate').value = p.targetDate||'';
+  document.getElementById('pos-closeddate').value = p.closedDate||'';
+  document.getElementById('pos-openings').value = p.openings||1;
+  document.getElementById('pos-notes').value = p.notes||'';
+  document.getElementById('posModal').classList.add('active');
+}
+
+function savePosition() {
+  const dept = document.getElementById('pos-dept').value.trim();
+  const role = document.getElementById('pos-role').value.trim();
+  if(!dept||!role){ alert('Department and Role are required.'); return; }
+
+  const id = document.getElementById('pos-id').value;
+  const data = {
+    dept, role,
+    level:     document.getElementById('pos-level').value,
+    priority:  document.getElementById('pos-priority').value,
+    status:    document.getElementById('pos-status').value,
+    recruiter: document.getElementById('pos-recruiter').value.trim(),
+    openDate:  document.getElementById('pos-opendate').value,
+    targetDate:document.getElementById('pos-targetdate').value,
+    closedDate:document.getElementById('pos-closeddate').value,
+    openings:  parseInt(document.getElementById('pos-openings').value)||1,
+    notes:     document.getElementById('pos-notes').value.trim(),
+  };
+
+  if(id) {
+    const idx = positions.findIndex(p=>p.id==id);
+    if(idx>=0) positions[idx] = {...positions[idx], ...data};
+  } else {
+    const num = positions.length + 1;
+    const posCode = 'POS' + String(num).padStart(3,'0');
+    positions.push({id: newId(), posCode, ...data});
+  }
+
+  saveData();
+  closePosModal();
+  renderAll();
+}
+
+function deletePosition(id) {
+  if(!confirm('Delete this position? All linked candidates will also be removed.')) return;
+  positions = positions.filter(p=>p.id!=id);
+  candidates = candidates.filter(c=>c.posId!=id);
+  saveData(); renderAll();
+}
+
+// ── CANDIDATES ────────────────────────────────────────────────────────
+function renderCandidates() {
+  const search = (document.getElementById('cand-search')?.value||'').toLowerCase();
+  const filterPos   = document.getElementById('cand-filter-pos')?.value||'';
+  const filterStage = document.getElementById('cand-filter-stage')?.value||'';
+  const filterSrc   = document.getElementById('cand-filter-source')?.value||'';
+
+  let filtered = candidates.filter(c=>{
+    const matchS = !search || (c.name||'').toLowerCase().includes(search) || (c.email||'').toLowerCase().includes(search);
+    const matchP = !filterPos   || String(c.posId)===filterPos;
+    const matchSt= !filterStage || c.stage===filterStage;
+    const matchSr= !filterSrc   || c.source===filterSrc;
+    return matchS && matchP && matchSt && matchSr;
+  });
+
+  const tbody = document.getElementById('cand-table-body');
+  if(!filtered.length){ tbody.innerHTML='<tr><td colspan="11" class="empty-msg">No candidates found</td></tr>'; return; }
+  tbody.innerHTML = filtered.map(c=>{
+    const pos = positions.find(p=>p.id==c.posId);
+    const posLabel = pos ? `${pos.role}` : '-';
+    const posDept  = pos ? pos.dept : '-';
+    return `<tr>
+      <td style="font-weight:600">${c.name||'-'}</td>
+      <td title="${pos?.posCode||''}">${posLabel}</td>
+      <td>${posDept}</td>
+      <td><span style="background:#f1f5f9;color:#475569;padding:2px 8px;border-radius:20px;font-size:11px">${c.source||'-'}</span></td>
+      <td>${stageBadge(c.stage||'Applied')}</td>
+      <td style="text-align:right">${fmt(c.currentCtc)}</td>
+      <td style="text-align:right">${fmt(c.expectedCtc)}</td>
+      <td>${c.noticePeriod||'-'}</td>
+      <td>${c.appliedDate||'-'}</td>
+      <td>${c.lastUpdate||'-'}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="editCandidate(${c.id})" style="margin-right:4px">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${c.id})">Del</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCandModal() {
+  document.getElementById('candModalTitle').textContent = 'Add Candidate';
+  document.getElementById('cand-id').value = '';
+  document.getElementById('cand-name').value = '';
+  document.getElementById('cand-email').value = '';
+  document.getElementById('cand-phone').value = '';
+  document.getElementById('cand-source').value = 'Naukri';
+  document.getElementById('cand-stage').value = 'Applied';
+  document.getElementById('cand-current-ctc').value = '';
+  document.getElementById('cand-expected-ctc').value = '';
+  document.getElementById('cand-notice').value = '';
+  document.getElementById('cand-applied').value = today();
+  document.getElementById('cand-lastupdate').value = today();
+  document.getElementById('cand-rejection').value = '';
+  document.getElementById('cand-notes').value = '';
+  populatePosFilter();
+  document.getElementById('candModal').classList.add('active');
+}
+
+function closeCandModal() { document.getElementById('candModal').classList.remove('active'); }
+
+function editCandidate(id) {
+  const c = candidates.find(x=>x.id==id);
+  if(!c) return;
+  document.getElementById('candModalTitle').textContent = 'Edit Candidate';
+  document.getElementById('cand-id').value = c.id;
+  document.getElementById('cand-name').value = c.name||'';
+  document.getElementById('cand-email').value = c.email||'';
+  document.getElementById('cand-phone').value = c.phone||'';
+  document.getElementById('cand-source').value = c.source||'Naukri';
+  document.getElementById('cand-stage').value = c.stage||'Applied';
+  document.getElementById('cand-current-ctc').value = c.currentCtc||'';
+  document.getElementById('cand-expected-ctc').value = c.expectedCtc||'';
+  document.getElementById('cand-notice').value = c.noticePeriod||'';
+  document.getElementById('cand-applied').value = c.appliedDate||'';
+  document.getElementById('cand-lastupdate').value = c.lastUpdate||'';
+  document.getElementById('cand-rejection').value = c.rejectionReason||'';
+  document.getElementById('cand-notes').value = c.notes||'';
+  populatePosFilter();
+  document.getElementById('cand-pos').value = c.posId||'';
+  document.getElementById('candModal').classList.add('active');
+}
+
+function saveCandidate() {
+  const name  = document.getElementById('cand-name').value.trim();
+  const posId = document.getElementById('cand-pos').value;
+  if(!name){ alert('Candidate name is required.'); return; }
+
+  const id = document.getElementById('cand-id').value;
+  const data = {
+    posId: posId ? parseInt(posId) : null,
+    name,
+    email:         document.getElementById('cand-email').value.trim(),
+    phone:         document.getElementById('cand-phone').value.trim(),
+    source:        document.getElementById('cand-source').value,
+    stage:         document.getElementById('cand-stage').value,
+    currentCtc:    parseFloat(document.getElementById('cand-current-ctc').value)||0,
+    expectedCtc:   parseFloat(document.getElementById('cand-expected-ctc').value)||0,
+    noticePeriod:  document.getElementById('cand-notice').value,
+    appliedDate:   document.getElementById('cand-applied').value,
+    lastUpdate:    document.getElementById('cand-lastupdate').value,
+    rejectionReason: document.getElementById('cand-rejection').value.trim(),
+    notes:         document.getElementById('cand-notes').value.trim(),
+  };
+
+  if(id) {
+    const idx = candidates.findIndex(c=>c.id==id);
+    if(idx>=0) candidates[idx] = {...candidates[idx], ...data};
+  } else {
+    candidates.push({id: newId(), ...data});
+  }
+
+  saveData(); closeCandModal(); renderAll();
+}
+
+function deleteCandidate(id) {
+  if(!confirm('Delete this candidate?')) return;
+  candidates = candidates.filter(c=>c.id!=id);
+  saveData(); renderAll();
+}
+
+// ── REPORTS ───────────────────────────────────────────────────────────
+function renderReports() {
+  const closed = positions.filter(p=>p.status==='Closed');
+  const joined = candidates.filter(c=>c.stage==='Joined').length;
+  const rejected = candidates.filter(c=>c.stage==='Rejected').length;
+  const inPipeline = candidates.filter(c=>!['Joined','Rejected','Withdrawn'].includes(c.stage)).length;
+
+  // TAT
+  const tatRows = closed.map(p=>{
+    const days = daysBetween(p.openDate, p.closedDate);
+    return {p, days};
+  }).sort((a,b)=>b.days-a.days);
+
+  const avgTat = tatRows.length ? Math.round(tatRows.reduce((s,r)=>s+r.days,0)/tatRows.length) : 0;
+  const offerToJoin = candidates.filter(c=>c.stage==='Joined').length;
+  const convRate = candidates.length ? ((joined/candidates.length)*100).toFixed(1) : 0;
+
+  document.getElementById('report-kpis').innerHTML = [
+    {label:'Positions Closed',value:closed.length,color:'#065f46'},
+    {label:'Avg TAT (Days)',value:avgTat||'-',color:'#9a3412'},
+    {label:'Overall Conversion',value:convRate+'%',color:'#1d4ed8'},
+    {label:'Active in Pipeline',value:inPipeline,color:'#6d28d9'},
+    {label:'Offer to Join',value:offerToJoin,color:'#10b981'},
+    {label:'Total Rejected',value:rejected,color:'#ef4444'},
+  ].map(k=>`<div class="kpi-card">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-value" style="font-size:24px;color:${k.color}">${k.value}</div>
+  </div>`).join('');
+
+  // TAT table
+  const tatBody = document.getElementById('tat-body');
+  tatBody.innerHTML = tatRows.length ? tatRows.map(({p,days})=>`<tr>
+    <td style="font-weight:700;color:var(--primary)">${p.posCode||p.id}</td>
+    <td>${p.dept||'-'}</td>
+    <td>${p.role||'-'}</td>
+    <td>${p.openDate||'-'}</td>
+    <td>${p.closedDate||'-'}</td>
+    <td style="font-weight:700;color:${days>45?'#ef4444':days>30?'#f59e0b':'#10b981'}">${days}d</td>
+  </tr>`).join('') : '<tr><td colspan="6" class="empty-msg">No closed positions yet</td></tr>';
+
+  // Source conversion
+  const srcMap={};
+  candidates.forEach(c=>{
+    const s=c.source||'Other';
+    if(!srcMap[s]) srcMap[s]={total:0,joined:0,rejected:0};
+    srcMap[s].total++;
+    if(c.stage==='Joined') srcMap[s].joined++;
+    if(c.stage==='Rejected') srcMap[s].rejected++;
+  });
+  document.getElementById('source-conv-body').innerHTML = Object.entries(srcMap).sort((a,b)=>b[1].total-a[1].total).map(([s,v])=>`<tr>
+    <td style="font-weight:600">${s}</td>
+    <td style="text-align:center">${v.total}</td>
+    <td style="text-align:center;color:#10b981;font-weight:700">${v.joined}</td>
+    <td style="text-align:center;color:#ef4444">${v.rejected}</td>
+    <td style="text-align:center;font-weight:700;color:#1e3a5f">${v.total?((v.joined/v.total)*100).toFixed(1)+'%':'0%'}</td>
+  </tr>`).join('') || '<tr><td colspan="5" class="empty-msg">No data</td></tr>';
+
+  // Stage drop-off
+  const STAGES=['Applied','Screened','Interview L1','Interview L2','HR Round','Offer','Joined'];
+  const stageCounts = STAGES.map(s=>candidates.filter(c=>c.stage===s).length);
+  const dropped = STAGES.map((s,i)=> i===0 ? 0 : Math.max(0, stageCounts[i-1]-stageCounts[i]));
+  document.getElementById('dropoff-body').innerHTML = STAGES.map((s,i)=>`<tr>
+    <td>${stageBadge(s)}</td>
+    <td style="text-align:center;font-weight:700">${stageCounts[i]}</td>
+    <td style="text-align:center;color:${dropped[i]>0?'#ef4444':'#64748b'}">${i===0?'-':dropped[i]}</td>
+    <td style="text-align:center;color:#64748b">${i===0||!stageCounts[i-1]?'-':((dropped[i]/stageCounts[i-1])*100).toFixed(1)+'%'}</td>
+  </tr>`).join('');
+
+  // Recruiter performance
+  const recMap={};
+  positions.forEach(p=>{
+    const r=p.recruiter||'Unassigned';
+    if(!recMap[r]) recMap[r]={total:0,closed:0,inprog:0,tatArr:[]};
+    recMap[r].total++;
+    if(p.status==='Closed') { recMap[r].closed++; if(p.openDate&&p.closedDate) recMap[r].tatArr.push(daysBetween(p.openDate,p.closedDate)); }
+    if(p.status==='In Progress') recMap[r].inprog++;
+  });
+  document.getElementById('recruiter-body').innerHTML = Object.entries(recMap).sort((a,b)=>b[1].total-a[1].total).map(([r,v])=>{
+    const avgT = v.tatArr.length ? Math.round(v.tatArr.reduce((s,x)=>s+x,0)/v.tatArr.length) : '-';
+    return `<tr>
+      <td style="font-weight:600">${r}</td>
+      <td style="text-align:center">${v.total}</td>
+      <td style="text-align:center;color:#10b981;font-weight:700">${v.closed}</td>
+      <td style="text-align:center;color:#f59e0b">${v.inprog}</td>
+      <td style="text-align:center;font-weight:700;color:#1e3a5f">${avgT !== '-' ? avgT+'d' : '-'}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty-msg">No data</td></tr>';
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='dashboard') renderDashboard();
+  if(name==='positions') renderPositions();
+  if(name==='pipeline')  renderCandidates();
+  if(name==='reports')   renderReports();
+}
+</script>
+</body>
+</html>
