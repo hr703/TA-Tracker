@@ -232,7 +232,7 @@ textarea{resize:vertical;min-height:72px}
             <thead><tr>
               <th>Name</th><th>Position</th><th>Dept</th><th>Source</th>
               <th>Stage</th><th>Current CTC</th><th>Expected CTC</th>
-              <th>Notice Period</th><th>Applied</th><th>Last Update</th><th>Actions</th>
+              <th>Notice Period</th><th>Interviewer 1</th><th>Interviewer 2</th><th>Applied</th><th>Last Update</th><th>Actions</th>
             </tr></thead>
             <tbody id="cand-table-body"></tbody>
           </table>
@@ -433,6 +433,33 @@ textarea{resize:vertical;min-height:72px}
       <div class="form-group">
         <label>Rejection Reason</label>
         <input type="text" id="cand-rejection" placeholder="If rejected...">
+      </div>
+      <!-- Interviewer Details -->
+      <div class="form-group full" style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0">
+        <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Interviewer 1 (L1)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group" style="margin:0">
+            <label>Name</label>
+            <input type="text" id="cand-int1-name" placeholder="Interviewer name">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Email</label>
+            <input type="email" id="cand-int1-email" placeholder="email@cuemath.com">
+          </div>
+        </div>
+      </div>
+      <div class="form-group full" style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0">
+        <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Interviewer 2 (L2)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group" style="margin:0">
+            <label>Name</label>
+            <input type="text" id="cand-int2-name" placeholder="Interviewer name">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Email</label>
+            <input type="email" id="cand-int2-email" placeholder="email@cuemath.com">
+          </div>
+        </div>
       </div>
       <div class="form-group full">
         <label>Notes</label>
@@ -800,6 +827,8 @@ function renderCandidates() {
       <td style="text-align:right">${fmt(c.currentCtc)}</td>
       <td style="text-align:right">${fmt(c.expectedCtc)}</td>
       <td>${c.noticePeriod||'-'}</td>
+      <td style="font-size:12px">${c.int1Name?`<div style="font-weight:600">${c.int1Name}</div><div style="color:#64748b">${c.int1Email||''}</div>`:'-'}</td>
+      <td style="font-size:12px">${c.int2Name?`<div style="font-weight:600">${c.int2Name}</div><div style="color:#64748b">${c.int2Email||''}</div>`:'-'}</td>
       <td>${c.appliedDate||'-'}</td>
       <td>${c.lastUpdate||'-'}</td>
       <td>
@@ -824,6 +853,10 @@ function openCandModal() {
   document.getElementById('cand-applied').value = today();
   document.getElementById('cand-lastupdate').value = today();
   document.getElementById('cand-rejection').value = '';
+  document.getElementById('cand-int1-name').value = '';
+  document.getElementById('cand-int1-email').value = '';
+  document.getElementById('cand-int2-name').value = '';
+  document.getElementById('cand-int2-email').value = '';
   document.getElementById('cand-notes').value = '';
   populatePosFilter();
   document.getElementById('candModal').classList.add('active');
@@ -847,6 +880,10 @@ function editCandidate(id) {
   document.getElementById('cand-applied').value = c.appliedDate||'';
   document.getElementById('cand-lastupdate').value = c.lastUpdate||'';
   document.getElementById('cand-rejection').value = c.rejectionReason||'';
+  document.getElementById('cand-int1-name').value = c.int1Name||'';
+  document.getElementById('cand-int1-email').value = c.int1Email||'';
+  document.getElementById('cand-int2-name').value = c.int2Name||'';
+  document.getElementById('cand-int2-email').value = c.int2Email||'';
   document.getElementById('cand-notes').value = c.notes||'';
   populatePosFilter();
   document.getElementById('cand-pos').value = c.posId||'';
@@ -872,6 +909,10 @@ function saveCandidate() {
     appliedDate:   document.getElementById('cand-applied').value,
     lastUpdate:    document.getElementById('cand-lastupdate').value,
     rejectionReason: document.getElementById('cand-rejection').value.trim(),
+    int1Name:  document.getElementById('cand-int1-name').value.trim(),
+    int1Email: document.getElementById('cand-int1-email').value.trim(),
+    int2Name:  document.getElementById('cand-int2-name').value.trim(),
+    int2Email: document.getElementById('cand-int2-email').value.trim(),
     notes:         document.getElementById('cand-notes').value.trim(),
   };
 
