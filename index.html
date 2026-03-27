@@ -554,6 +554,55 @@ textarea{resize:vertical;min-height:72px}
   </div>
 </div>
 
+<!-- ══ SCHEDULE INTERVIEW MODAL ══ -->
+<div class="modal-overlay" id="scheduleModal">
+  <div class="modal-box" style="max-width:460px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div class="modal-title" style="margin:0" id="schModalTitle">Schedule Next Round</div>
+        <div id="schModalSub" style="font-size:13px;color:#64748b;margin-top:4px"></div>
+      </div>
+      <button onclick="closeScheduleModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#64748b">&#10005;</button>
+    </div>
+    <input type="hidden" id="sch-cand-id">
+    <input type="hidden" id="sch-next-stage">
+    <div class="form-grid" style="gap:12px">
+      <div class="form-group full">
+        <label>Interviewer Name *</label>
+        <input type="text" id="sch-int-name" placeholder="e.g. Ravi Kumar">
+      </div>
+      <div class="form-group full">
+        <label>Interviewer Email *</label>
+        <input type="email" id="sch-int-email" placeholder="ravi.k@cuemath.com">
+      </div>
+      <div class="form-group">
+        <label>Interview Date *</label>
+        <input type="date" id="sch-int-date">
+      </div>
+      <div class="form-group">
+        <label>Interview Time *</label>
+        <input type="time" id="sch-int-time" value="10:00">
+      </div>
+      <div class="form-group full">
+        <label>Duration</label>
+        <select id="sch-duration">
+          <option value="1">1 Hour</option>
+          <option value="0.5">30 Minutes</option>
+          <option value="1.5">1.5 Hours</option>
+          <option value="2">2 Hours</option>
+        </select>
+      </div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-top:14px;font-size:12px;color:#065f46">
+      &#128197; <strong>Auto-action:</strong> Stage update hoga + Interviewer aur Candidate dono ko Google Calendar invite + email jayega.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeScheduleModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSchedule()" id="schConfirmBtn">&#128197; Schedule &amp; Send Invite</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = '';
 const TOKEN = 'ta-secure-2025';
@@ -1309,18 +1358,126 @@ function getNextStageBtn(c) {
   return html;
 }
 
+const INTERVIEW_STAGES = ['Interview L1','Interview L2','Final Round','HR Round'];
+
 function moveToNextStage(id) {
   const c = candidates.find(x => x.id == id);
   if(!c) return;
   const idx = STAGE_ORDER.indexOf(c.stage);
   if(idx < 0 || idx >= STAGE_ORDER.length - 1) return;
   const next = STAGE_ORDER[idx + 1];
+
+  // If moving to an interview stage — open schedule modal
+  if(INTERVIEW_STAGES.includes(next)) {
+    openScheduleModal(id, next, c);
+    return;
+  }
+
+  // Non-interview stage — direct move
   if(!confirm(`Move "${c.name}" to → ${next}?`)) return;
   c.stage = next;
   c.lastUpdate = today();
   saveData();
   renderCandidates();
   renderDashboard();
+}
+
+function openScheduleModal(candId, nextStage, c) {
+  document.getElementById('sch-cand-id').value = candId;
+  document.getElementById('sch-next-stage').value = nextStage;
+  document.getElementById('schModalTitle').textContent = '📅 Schedule — ' + nextStage;
+  document.getElementById('schModalSub').textContent = c.name + ' → Moving to ' + nextStage;
+  document.getElementById('sch-int-name').value = '';
+  document.getElementById('sch-int-email').value = '';
+  document.getElementById('sch-int-date').value = '';
+  document.getElementById('sch-int-time').value = '10:00';
+  document.getElementById('scheduleModal').classList.add('active');
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').classList.remove('active');
+}
+
+async function confirmSchedule() {
+  const candId   = document.getElementById('sch-cand-id').value;
+  const next     = document.getElementById('sch-next-stage').value;
+  const intName  = document.getElementById('sch-int-name').value.trim();
+  const intEmail = document.getElementById('sch-int-email').value.trim();
+  const intDate  = document.getElementById('sch-int-date').value;
+  const intTime  = document.getElementById('sch-int-time').value || '10:00';
+  const dur      = parseFloat(document.getElementById('sch-duration').value) || 1;
+
+  if(!intName || !intEmail) { alert('Interviewer naam aur email zaroori hai.'); return; }
+  if(!intDate) { alert('Interview date select karo.'); return; }
+
+  const c = candidates.find(x => x.id == candId);
+  if(!c) return;
+
+  // Save interviewer details to the candidate record based on stage
+  if(next === 'Interview L1') {
+    c.int1Name = intName; c.int1Email = intEmail; c.int1Date = intDate; c.int1Time = intTime;
+  } else if(next === 'Interview L2') {
+    c.int2Name = intName; c.int2Email = intEmail; c.int2Date = intDate; c.int2Time = intTime;
+  } else if(next === 'Final Round') {
+    c.intFName = intName; c.intFEmail = intEmail; c.intFDate = intDate; c.intFTime = intTime;
+  } else if(next === 'HR Round') {
+    c.intHRName = intName; c.intHREmail = intEmail; c.intHRDate = intDate; c.intHRTime = intTime;
+  }
+
+  c.stage = next;
+  c.lastUpdate = today();
+  saveData();
+  renderCandidates();
+  renderDashboard();
+
+  const btn = document.getElementById('schConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  // Send calendar invite
+  const pos = positions.find(p => p.id == c.posId);
+  const posTitle = pos ? `${pos.role}${pos.designation?' / '+pos.designation:''} (${pos.dept})` : 'Position';
+
+  const [h, m] = intTime.split(':').map(Number);
+  const totalMins = h * 60 + m + dur * 60;
+  const endH = String(Math.floor(totalMins/60) % 24).padStart(2,'0');
+  const endM = String(totalMins % 60).padStart(2,'0');
+
+  const event = {
+    summary: `${next} — ${c.name} | ${posTitle}`,
+    description: `Round: ${next}\nCandidate: ${c.name} (${c.email||''})\nPosition: ${posTitle}\nOrganized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})`,
+    start: { dateTime: `${intDate}T${intTime}:00`, timeZone: 'Asia/Kolkata' },
+    end:   { dateTime: `${intDate}T${endH}:${endM}:00`, timeZone: 'Asia/Kolkata' },
+    attendees: [
+      { email: intEmail },
+      ...(c.email ? [{ email: c.email }] : [])
+    ],
+    conferenceData: { createRequest: { requestId: 'ta-'+Date.now(), conferenceSolutionKey:{ type:'hangoutsMeet' } } },
+    sendUpdates: 'all'
+  };
+
+  const doSend = async () => {
+    try {
+      const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1&sendUpdates=all', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + calendarToken, 'Content-Type': 'application/json' },
+        body: JSON.stringify(event)
+      });
+      if(resp.status === 401){ calendarToken = null; _pendingInvite = doSend; tokenClient.requestAccessToken({}); return; }
+      if(resp.ok){
+        closeScheduleModal();
+        alert(`✅ Done!\n\n"${c.name}" ko ${next} mein move kiya gaya.\n📧 ${intName} aur candidate dono ko Calendar invite + email gaya!`);
+      } else {
+        const err = await resp.json();
+        alert('❌ Invite failed: ' + (err.error?.message||'Unknown error'));
+      }
+    } catch(e) {
+      alert('❌ Network error: ' + e.message);
+    }
+    btn.disabled = false; btn.textContent = '📅 Schedule & Send Invite';
+  };
+
+  if(!calendarToken){ _pendingInvite = doSend; tokenClient.requestAccessToken({ prompt:'' }); }
+  else { doSend(); }
 }
 
 function rejectCandidate(id) {
