@@ -195,7 +195,7 @@ textarea{resize:vertical;min-height:72px}
         <div style="overflow-x:auto">
           <table>
             <thead><tr>
-              <th>Pos ID</th><th>Department</th><th>Role</th><th>Level</th>
+              <th>Pos ID</th><th>Department</th><th>Role</th><th>Designation</th><th>Level</th>
               <th>Priority</th><th>Status</th><th>Recruiter</th>
               <th>Open Date</th><th>Target Date</th><th>Days Open</th>
               <th>Candidates</th><th>Actions</th>
@@ -314,8 +314,12 @@ textarea{resize:vertical;min-height:72px}
         <input type="text" id="pos-dept" placeholder="e.g. Engineering">
       </div>
       <div class="form-group">
-        <label>Role / Designation *</label>
+        <label>Role *</label>
         <input type="text" id="pos-role" placeholder="e.g. Software Engineer">
+      </div>
+      <div class="form-group">
+        <label>Designation</label>
+        <input type="text" id="pos-designation" placeholder="e.g. SDE-2 / IC3">
       </div>
       <div class="form-group">
         <label>Level</label>
@@ -723,7 +727,7 @@ function renderPositions() {
   const filterPriority = document.getElementById('pos-filter-priority')?.value||'';
 
   let filtered = positions.filter(p=>{
-    const matchSearch = !search || (p.role||'').toLowerCase().includes(search) || (p.dept||'').toLowerCase().includes(search);
+    const matchSearch = !search || (p.role||'').toLowerCase().includes(search) || (p.dept||'').toLowerCase().includes(search) || (p.designation||'').toLowerCase().includes(search);
     const matchStatus = !filterStatus || p.status===filterStatus;
     const matchDept   = !filterDept   || p.dept===filterDept;
     const matchPri    = !filterPriority || p.priority===filterPriority;
@@ -731,7 +735,7 @@ function renderPositions() {
   });
 
   const tbody = document.getElementById('pos-table-body');
-  if(!filtered.length){ tbody.innerHTML='<tr><td colspan="12" class="empty-msg">No positions found</td></tr>'; return; }
+  if(!filtered.length){ tbody.innerHTML='<tr><td colspan="13" class="empty-msg">No positions found</td></tr>'; return; }
   tbody.innerHTML = filtered.map(p=>{
     const daysOpen = p.status==='Closed' ? daysBetween(p.openDate, p.closedDate) : daysBetween(p.openDate);
     const daysStyle = daysOpen > 60 ? 'color:#ef4444;font-weight:700' : daysOpen > 30 ? 'color:#f59e0b;font-weight:600' : 'color:#10b981;font-weight:600';
@@ -740,6 +744,7 @@ function renderPositions() {
       <td style="font-weight:700;color:var(--primary)">${p.posCode||p.id}</td>
       <td>${p.dept||'-'}</td>
       <td style="font-weight:600">${p.role||'-'}</td>
+      <td style="color:#475569">${p.designation||'-'}</td>
       <td>${p.level||'-'}</td>
       <td>${priorityBadge(p.priority)}</td>
       <td>${statusBadge(p.status)}</td>
@@ -768,7 +773,7 @@ function populatePosFilter() {
   const sel = document.getElementById('cand-filter-pos');
   if(!sel) return;
   sel.innerHTML = '<option value="">All Positions</option>' +
-    positions.map(p=>`<option value="${p.id}">${p.posCode||p.id} — ${p.role} (${p.dept})</option>`).join('');
+    positions.map(p=>`<option value="${p.id}">${p.posCode||p.id} — ${p.role}${p.designation?' / '+p.designation:''} (${p.dept})</option>`).join('');
 
   const candPosEl = document.getElementById('cand-pos');
   if(candPosEl) {
@@ -784,6 +789,7 @@ function openPosModal(id) {
   document.getElementById('pos-id').value = '';
   document.getElementById('pos-dept').value = '';
   document.getElementById('pos-role').value = '';
+  document.getElementById('pos-designation').value = '';
   document.getElementById('pos-level').value = '';
   document.getElementById('pos-priority').value = 'High';
   document.getElementById('pos-status').value = 'Open';
@@ -808,6 +814,7 @@ function editPosition(id) {
   document.getElementById('pos-id').value = p.id;
   document.getElementById('pos-dept').value = p.dept||'';
   document.getElementById('pos-role').value = p.role||'';
+  document.getElementById('pos-designation').value = p.designation||'';
   document.getElementById('pos-level').value = p.level||'';
   document.getElementById('pos-priority').value = p.priority||'High';
   document.getElementById('pos-status').value = p.status||'Open';
@@ -831,6 +838,7 @@ function savePosition() {
   const id = document.getElementById('pos-id').value;
   const data = {
     dept, role,
+    designation: document.getElementById('pos-designation').value.trim(),
     level:     document.getElementById('pos-level').value,
     priority:  document.getElementById('pos-priority').value,
     status:    document.getElementById('pos-status').value,
@@ -1023,9 +1031,9 @@ function saveCandidate() {
 
 function loadDummyData(){
   if(!confirm('Load dummy data? This will add sample positions and candidates.')) return;
-  const p1={id:newId(),posCode:'POS001',dept:'Engineering',role:'Software Engineer',level:'Mid',priority:'High',status:'In Progress',recruiter:'Kiranpreet Kaur',openDate:'2026-03-01',targetDate:'2026-04-15',closedDate:'',openings:2,notes:'React + Node.js experience required'};
-  const p2={id:newId(),posCode:'POS002',dept:'Marketing',role:'Growth Manager',level:'Senior',priority:'Medium',status:'Open',recruiter:'Ajay Yadav',openDate:'2026-03-10',targetDate:'2026-04-30',closedDate:'',openings:1,notes:'EdTech experience preferred'};
-  const p3={id:newId(),posCode:'POS003',dept:'Finance',role:'Finance Analyst',level:'Junior',priority:'Low',status:'Open',recruiter:'Lipika Gandhi',openDate:'2026-03-15',targetDate:'2026-05-01',closedDate:'',openings:1,notes:''};
+  const p1={id:newId(),posCode:'POS001',dept:'Engineering',role:'Software Engineer',designation:'SDE-2',level:'Mid',priority:'High',status:'In Progress',recruiter:'Kiranpreet Kaur',openDate:'2026-03-01',targetDate:'2026-04-15',closedDate:'',openings:2,notes:'React + Node.js experience required'};
+  const p2={id:newId(),posCode:'POS002',dept:'Marketing',role:'Growth Manager',designation:'Senior Manager',level:'Senior',priority:'Medium',status:'Open',recruiter:'Ajay Yadav',openDate:'2026-03-10',targetDate:'2026-04-30',closedDate:'',openings:1,notes:'EdTech experience preferred'};
+  const p3={id:newId(),posCode:'POS003',dept:'Finance',role:'Finance Analyst',designation:'Analyst L1',level:'Junior',priority:'Low',status:'Open',recruiter:'Lipika Gandhi',openDate:'2026-03-15',targetDate:'2026-05-01',closedDate:'',openings:1,notes:''};
   positions.push(p1,p2,p3);
   candidates.push(
     {id:newId(),posId:p1.id,name:'Rahul Sharma',email:'rahul.s@gmail.com',phone:'9876543210',source:'Naukri',stage:'Interview L2',currentCtc:600000,expectedCtc:900000,noticePeriod:'30 days',appliedDate:'2026-03-05',lastUpdate:'2026-03-20',int1Name:'Kiranpreet Kaur',int1Email:'kiranpreet.kaur@cuemath.com',int1Date:'2026-03-12',int1Result:'Pass',int1Feedback:'Good problem solving',int2Name:'Ravi Kumar',int2Email:'ravi.k@cuemath.com',int2Date:'2026-03-20',int2Result:'',int2Feedback:'',notes:'Strong candidate'},
