@@ -360,6 +360,12 @@ textarea{resize:vertical;min-height:72px}
         <label>Job Description / Notes</label>
         <textarea id="pos-notes" placeholder="Brief JD or notes..."></textarea>
       </div>
+      <div class="form-group full">
+        <label>Upload JD (PDF / DOC / DOCX — max 5MB)</label>
+        <input type="file" id="pos-jd-file" accept=".pdf,.doc,.docx" onchange="handleFileUpload('pos-jd-file','pos-jd-data','pos-jd-info')">
+        <div id="pos-jd-info" style="font-size:12px;color:#10b981;margin-top:4px"></div>
+        <input type="hidden" id="pos-jd-data">
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closePosModal()">Cancel</button>
@@ -506,6 +512,12 @@ textarea{resize:vertical;min-height:72px}
           </div>
           <div class="form-group" style="margin:0"><label>Feedback</label><input type="text" id="cand-intF-feedback" placeholder="Final round feedback..."></div>
         </div>
+      </div>
+      <div class="form-group full">
+        <label>Upload CV / Resume (PDF / DOC / DOCX — max 5MB)</label>
+        <input type="file" id="cand-cv-file" accept=".pdf,.doc,.docx" onchange="handleFileUpload('cand-cv-file','cand-cv-data','cand-cv-info')">
+        <div id="cand-cv-info" style="font-size:12px;color:#10b981;margin-top:4px"></div>
+        <input type="hidden" id="cand-cv-data">
       </div>
       <div class="form-group full">
         <label>Notes</label>
@@ -735,7 +747,8 @@ function renderPositions() {
       <td style="color:${p.targetDate&&p.targetDate<today()&&p.status!=='Closed'?'#ef4444':'inherit'}">${p.targetDate||'-'}</td>
       <td style="${daysStyle}">${daysOpen!==null?daysOpen+'d':'-'}</td>
       <td><span style="background:#e0e7ff;color:#3730a3;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700">${candCount}</span></td>
-      <td>
+      <td style="white-space:nowrap">
+        ${p.jdData?`<button class="btn btn-sm btn-success" onclick="downloadFile('${p.id}','jd')" style="margin-bottom:3px;display:block">&#8595; JD</button>`:''}
         <button class="btn btn-secondary btn-sm" onclick="editPosition(${p.id})" style="margin-right:4px">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deletePosition(${p.id})">Del</button>
       </td>
@@ -779,6 +792,9 @@ function openPosModal(id) {
   document.getElementById('pos-closeddate').value = '';
   document.getElementById('pos-openings').value = '1';
   document.getElementById('pos-notes').value = '';
+  document.getElementById('pos-jd-file').value = '';
+  document.getElementById('pos-jd-data').value = '';
+  document.getElementById('pos-jd-info').textContent = '';
   document.getElementById('posModal').classList.add('active');
 }
 
@@ -800,6 +816,9 @@ function editPosition(id) {
   document.getElementById('pos-closeddate').value = p.closedDate||'';
   document.getElementById('pos-openings').value = p.openings||1;
   document.getElementById('pos-notes').value = p.notes||'';
+  document.getElementById('pos-jd-file').value = '';
+  document.getElementById('pos-jd-data').value = p.jdData||'';
+  document.getElementById('pos-jd-info').textContent = p.jdName ? '✅ '+p.jdName+' (existing)' : '';
   document.getElementById('posModal').classList.add('active');
 }
 
@@ -820,6 +839,8 @@ function savePosition() {
     closedDate:document.getElementById('pos-closeddate').value,
     openings:  parseInt(document.getElementById('pos-openings').value)||1,
     notes:     document.getElementById('pos-notes').value.trim(),
+    jdData:    document.getElementById('pos-jd-data').value || undefined,
+    jdName:    document.getElementById('pos-jd-file').files[0]?.name || undefined,
   };
 
   if(id) {
@@ -879,6 +900,7 @@ function renderCandidates() {
       <td>${c.lastUpdate||'-'}</td>
       <td style="white-space:nowrap">
         ${getNextStageBtn(c)}
+        ${c.cvData?`<button class="btn btn-sm btn-success" onclick="downloadFile('${c.id}','cv')" style="margin-bottom:3px;display:block">&#8595; CV</button>`:''}
         <button class="btn btn-secondary btn-sm" onclick="editCandidate(${c.id})" style="margin:0 4px">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${c.id})">Del</button>
       </td>
@@ -900,6 +922,9 @@ function openCandModal() {
   document.getElementById('cand-applied').value = today();
   document.getElementById('cand-lastupdate').value = today();
   document.getElementById('cand-rejection').value = '';
+  document.getElementById('cand-cv-file').value = '';
+  document.getElementById('cand-cv-data').value = '';
+  document.getElementById('cand-cv-info').textContent = '';
   document.getElementById('cand-int1-name').value = '';
   document.getElementById('cand-int1-email').value = '';
   document.getElementById('cand-int1-date').value = '';
@@ -930,6 +955,9 @@ function editCandidate(id) {
   document.getElementById('cand-applied').value = c.appliedDate||'';
   document.getElementById('cand-lastupdate').value = c.lastUpdate||'';
   document.getElementById('cand-rejection').value = c.rejectionReason||'';
+  document.getElementById('cand-cv-file').value = '';
+  document.getElementById('cand-cv-data').value = c.cvData||'';
+  document.getElementById('cand-cv-info').textContent = c.cvName ? '✅ '+c.cvName+' (existing)' : '';
   document.getElementById('cand-int1-name').value = c.int1Name||'';
   document.getElementById('cand-int1-email').value = c.int1Email||'';
   document.getElementById('cand-int1-date').value = c.int1Date||'';
@@ -970,6 +998,8 @@ function saveCandidate() {
     ...[2,3,4].reduce((acc,n)=>{ ['Name','Email','Date','Result','Feedback'].forEach(f=>{ acc[`int${n}${f}`]=document.getElementById(`cand-int${n}-${f.toLowerCase()}`)?.value?.trim()||''; }); return acc; },{}),
     ...['Name','Email','Date','Result','Feedback'].reduce((acc,f)=>{ acc[`intF${f}`]=document.getElementById(`cand-intF-${f.toLowerCase()}`)?.value?.trim()||''; return acc; },{}),
     notes:         document.getElementById('cand-notes').value.trim(),
+    cvData:        document.getElementById('cand-cv-data').value || undefined,
+    cvName:        document.getElementById('cand-cv-file').files[0]?.name || undefined,
   };
 
   if(id) {
@@ -1100,6 +1130,30 @@ function renderReports() {
       <td style="text-align:center;font-weight:700;color:#1e3a5f">${avgT !== '-' ? avgT+'d' : '-'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="5" class="empty-msg">No data</td></tr>';
+}
+
+// ── FILE UPLOAD / DOWNLOAD ───────────────────────────────────────────
+function handleFileUpload(inputId, dataId, infoId) {
+  const file = document.getElementById(inputId).files[0];
+  if(!file) return;
+  if(file.size > 5*1024*1024){ alert('File too large! Max 5MB allowed.'); document.getElementById(inputId).value=''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById(dataId).value = e.target.result; // base64 data URL
+    document.getElementById(infoId).textContent = '✅ ' + file.name + ' (' + (file.size/1024).toFixed(1) + ' KB)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function downloadFile(id, type) {
+  let item, dataKey, nameKey;
+  if(type==='jd'){ item=positions.find(p=>p.id==id); dataKey='jdData'; nameKey='jdName'; }
+  else { item=candidates.find(c=>c.id==id); dataKey='cvData'; nameKey='cvName'; }
+  if(!item||!item[dataKey]) return alert('No file found.');
+  const a=document.createElement('a');
+  a.href=item[dataKey];
+  a.download=item[nameKey]||(`${type==='jd'?'JD':'CV'}_${id}.pdf`);
+  a.click();
 }
 
 // ── MOVE TO NEXT ROUND ───────────────────────────────────────────────
