@@ -1186,9 +1186,12 @@ async function sendCalendarInvite(round, intNum) {
     TA_TEAM.forEach(e=>{ if(e!==email && e!==candEmail) attendees.push({email:e}); });
     if(currentUser?.email && !attendees.find(a=>a.email===currentUser.email)) attendees.push({email:currentUser.email});
 
+    const pos2 = positions.find(p=>p.id==posId);
+    const jdNotes = pos2?.notes ? `\n\nJD Notes:\n${pos2.notes}` : '';
+    const cvNote = document.getElementById('cand-cv-data').value ? '\n\n📎 CV uploaded — download from TA Tracker tool.' : '';
     const event = {
       summary: `${round} Interview — ${candName} | ${posTitle}`,
-      description: `Round: ${round}\nCandidate: ${candName}\nPosition: ${posTitle}\nOrganized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})`,
+      description: `🎯 Round: ${round}\n👤 Candidate: ${candName} (${candEmail||'N/A'})\n📋 Position: ${posTitle}\n📅 Organized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})\n\n👥 TA Team CC: ${TA_TEAM.join(', ')}${jdNotes}${cvNote}`,
       start: { dateTime: startDT, timeZone: 'Asia/Kolkata' },
       end:   { dateTime: endDT,   timeZone: 'Asia/Kolkata' },
       attendees,
@@ -1211,9 +1214,11 @@ async function sendCalendarInvite(round, intNum) {
         setTimeout(()=>{ if(el) el.textContent=''; }, 6000);
       } else {
         const err = await resp.json();
-        el.style.color = '#ef4444'; el.textContent = '❌ ' + (err.error?.message||'Failed');
+        const msg = err.error?.message||'Unknown error';
+        el.style.color = '#ef4444'; el.textContent = '❌ ' + msg;
+        alert('❌ Invite Error:\n' + msg + '\n\nNote: Google Calendar API enabled hai na Google Console mein?');
       }
-    } catch(e){ el.style.color='#ef4444'; el.textContent='❌ Network error'; }
+    } catch(e){ el.style.color='#ef4444'; el.textContent='❌ Network error'; alert('❌ Network error: '+e.message); }
   };
 
   if(!calendarToken){ _pendingInvite = doSend; tokenClient.requestAccessToken({ prompt:'' }); }
@@ -1449,7 +1454,7 @@ async function confirmSchedule() {
 
   const event = {
     summary: `${next} — ${c.name} | ${posTitle}`,
-    description: `Round: ${next}\nCandidate: ${c.name} (${c.email||''})\nPosition: ${posTitle}\nOrganized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})`,
+    description: `🎯 Round: ${next}\n👤 Candidate: ${c.name} (${c.email||'N/A'})\n📋 Position: ${posTitle}\n📅 Organized by: ${currentUser?.name||'TA Team'} (${currentUser?.email||''})\n\n👥 TA Team CC: ${TA_TEAM.join(', ')}${pos?.notes ? '\n\nJD Notes:\n'+pos.notes : ''}${c.cvData ? '\n\n📎 CV uploaded — download from TA Tracker tool.' : ''}`,
     start: { dateTime: `${intDate}T${intTime}:00`, timeZone: 'Asia/Kolkata' },
     end:   { dateTime: `${intDate}T${intEndTime}:00`, timeZone: 'Asia/Kolkata' },
     attendees: [
