@@ -434,10 +434,10 @@ textarea{resize:vertical;min-height:72px}
         <label>Rejection Reason</label>
         <input type="text" id="cand-rejection" placeholder="If rejected...">
       </div>
-      <!-- Interviewer Details -->
-      <div class="form-group full" style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0">
-        <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Interviewer 1 (L1)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <!-- Interviewer 1 (L1) -->
+      <div class="form-group full" style="background:#eff6ff;border-radius:8px;padding:12px;border:1px solid #bfdbfe">
+        <div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">&#128100; Interviewer 1 — Round L1</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="form-group" style="margin:0">
             <label>Name</label>
             <input type="text" id="cand-int1-name" placeholder="Interviewer name">
@@ -446,11 +446,31 @@ textarea{resize:vertical;min-height:72px}
             <label>Email</label>
             <input type="email" id="cand-int1-email" placeholder="email@cuemath.com">
           </div>
+          <div class="form-group" style="margin:0">
+            <label>Interview Date</label>
+            <input type="date" id="cand-int1-date">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+          <div class="form-group" style="margin:0">
+            <label>L1 Result</label>
+            <select id="cand-int1-result">
+              <option value="">Pending</option>
+              <option value="Pass">Pass ✅</option>
+              <option value="Fail">Fail ❌</option>
+              <option value="Hold">Hold ⏸</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>L1 Feedback</label>
+            <input type="text" id="cand-int1-feedback" placeholder="Brief feedback...">
+          </div>
         </div>
       </div>
-      <div class="form-group full" style="background:#f8fafc;border-radius:8px;padding:12px;border:1px solid #e2e8f0">
-        <div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Interviewer 2 (L2)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <!-- Interviewer 2 (L2) -->
+      <div class="form-group full" style="background:#f0fdf4;border-radius:8px;padding:12px;border:1px solid #bbf7d0">
+        <div style="font-size:12px;font-weight:700;color:#065f46;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">&#128100; Interviewer 2 — Round L2</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
           <div class="form-group" style="margin:0">
             <label>Name</label>
             <input type="text" id="cand-int2-name" placeholder="Interviewer name">
@@ -458,6 +478,25 @@ textarea{resize:vertical;min-height:72px}
           <div class="form-group" style="margin:0">
             <label>Email</label>
             <input type="email" id="cand-int2-email" placeholder="email@cuemath.com">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Interview Date</label>
+            <input type="date" id="cand-int2-date">
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+          <div class="form-group" style="margin:0">
+            <label>L2 Result</label>
+            <select id="cand-int2-result">
+              <option value="">Pending</option>
+              <option value="Pass">Pass ✅</option>
+              <option value="Fail">Fail ❌</option>
+              <option value="Hold">Hold ⏸</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>L2 Feedback</label>
+            <input type="text" id="cand-int2-feedback" placeholder="Brief feedback...">
           </div>
         </div>
       </div>
@@ -827,12 +866,13 @@ function renderCandidates() {
       <td style="text-align:right">${fmt(c.currentCtc)}</td>
       <td style="text-align:right">${fmt(c.expectedCtc)}</td>
       <td>${c.noticePeriod||'-'}</td>
-      <td style="font-size:12px">${c.int1Name?`<div style="font-weight:600">${c.int1Name}</div><div style="color:#64748b">${c.int1Email||''}</div>`:'-'}</td>
-      <td style="font-size:12px">${c.int2Name?`<div style="font-weight:600">${c.int2Name}</div><div style="color:#64748b">${c.int2Email||''}</div>`:'-'}</td>
+      <td style="font-size:12px">${c.int1Name?`<div style="font-weight:600">${c.int1Name}</div><div style="color:#64748b">${c.int1Email||''}</div>${c.int1Date?`<div style="color:#94a3b8">${c.int1Date}</div>`:''}${c.int1Result?`<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;background:${c.int1Result==='Pass'?'#d1fae5':c.int1Result==='Fail'?'#fee2e2':'#fef3c7'};color:${c.int1Result==='Pass'?'#065f46':c.int1Result==='Fail'?'#991b1b':'#92400e'}">${c.int1Result}</span>`:''}`:'-'}</td>
+      <td style="font-size:12px">${c.int2Name?`<div style="font-weight:600">${c.int2Name}</div><div style="color:#64748b">${c.int2Email||''}</div>${c.int2Date?`<div style="color:#94a3b8">${c.int2Date}</div>`:''}${c.int2Result?`<span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;background:${c.int2Result==='Pass'?'#d1fae5':c.int2Result==='Fail'?'#fee2e2':'#fef3c7'};color:${c.int2Result==='Pass'?'#065f46':c.int2Result==='Fail'?'#991b1b':'#92400e'}">${c.int2Result}</span>`:''}`:'-'}</td>
       <td>${c.appliedDate||'-'}</td>
       <td>${c.lastUpdate||'-'}</td>
-      <td>
-        <button class="btn btn-secondary btn-sm" onclick="editCandidate(${c.id})" style="margin-right:4px">Edit</button>
+      <td style="white-space:nowrap">
+        ${getNextStageBtn(c)}
+        <button class="btn btn-secondary btn-sm" onclick="editCandidate(${c.id})" style="margin:0 4px">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${c.id})">Del</button>
       </td>
     </tr>`;
@@ -855,8 +895,14 @@ function openCandModal() {
   document.getElementById('cand-rejection').value = '';
   document.getElementById('cand-int1-name').value = '';
   document.getElementById('cand-int1-email').value = '';
+  document.getElementById('cand-int1-date').value = '';
+  document.getElementById('cand-int1-result').value = '';
+  document.getElementById('cand-int1-feedback').value = '';
   document.getElementById('cand-int2-name').value = '';
   document.getElementById('cand-int2-email').value = '';
+  document.getElementById('cand-int2-date').value = '';
+  document.getElementById('cand-int2-result').value = '';
+  document.getElementById('cand-int2-feedback').value = '';
   document.getElementById('cand-notes').value = '';
   populatePosFilter();
   document.getElementById('candModal').classList.add('active');
@@ -882,8 +928,14 @@ function editCandidate(id) {
   document.getElementById('cand-rejection').value = c.rejectionReason||'';
   document.getElementById('cand-int1-name').value = c.int1Name||'';
   document.getElementById('cand-int1-email').value = c.int1Email||'';
+  document.getElementById('cand-int1-date').value = c.int1Date||'';
+  document.getElementById('cand-int1-result').value = c.int1Result||'';
+  document.getElementById('cand-int1-feedback').value = c.int1Feedback||'';
   document.getElementById('cand-int2-name').value = c.int2Name||'';
   document.getElementById('cand-int2-email').value = c.int2Email||'';
+  document.getElementById('cand-int2-date').value = c.int2Date||'';
+  document.getElementById('cand-int2-result').value = c.int2Result||'';
+  document.getElementById('cand-int2-feedback').value = c.int2Feedback||'';
   document.getElementById('cand-notes').value = c.notes||'';
   populatePosFilter();
   document.getElementById('cand-pos').value = c.posId||'';
@@ -909,10 +961,16 @@ function saveCandidate() {
     appliedDate:   document.getElementById('cand-applied').value,
     lastUpdate:    document.getElementById('cand-lastupdate').value,
     rejectionReason: document.getElementById('cand-rejection').value.trim(),
-    int1Name:  document.getElementById('cand-int1-name').value.trim(),
-    int1Email: document.getElementById('cand-int1-email').value.trim(),
-    int2Name:  document.getElementById('cand-int2-name').value.trim(),
-    int2Email: document.getElementById('cand-int2-email').value.trim(),
+    int1Name:     document.getElementById('cand-int1-name').value.trim(),
+    int1Email:    document.getElementById('cand-int1-email').value.trim(),
+    int1Date:     document.getElementById('cand-int1-date').value,
+    int1Result:   document.getElementById('cand-int1-result').value,
+    int1Feedback: document.getElementById('cand-int1-feedback').value.trim(),
+    int2Name:     document.getElementById('cand-int2-name').value.trim(),
+    int2Email:    document.getElementById('cand-int2-email').value.trim(),
+    int2Date:     document.getElementById('cand-int2-date').value,
+    int2Result:   document.getElementById('cand-int2-result').value,
+    int2Feedback: document.getElementById('cand-int2-feedback').value.trim(),
     notes:         document.getElementById('cand-notes').value.trim(),
   };
 
@@ -1019,6 +1077,61 @@ function renderReports() {
       <td style="text-align:center;font-weight:700;color:#1e3a5f">${avgT !== '-' ? avgT+'d' : '-'}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="5" class="empty-msg">No data</td></tr>';
+}
+
+// ── MOVE TO NEXT ROUND ───────────────────────────────────────────────
+const STAGE_ORDER = ['Applied','Screened','Interview L1','Interview L2','HR Round','Offer','Joined'];
+
+function getNextStageBtn(c) {
+  const idx = STAGE_ORDER.indexOf(c.stage);
+  if(['Rejected','Withdrawn','Joined'].includes(c.stage)) return '';
+  if(idx < 0) return '';
+  const colors = {
+    'Screened':'#1d4ed8','Interview L1':'#0369a1','Interview L2':'#065f46',
+    'HR Round':'#6d28d9','Offer':'#92400e','Joined':'#065f46'
+  };
+  let html = '';
+  if(idx < STAGE_ORDER.length - 1){
+    const next = STAGE_ORDER[idx + 1];
+    const color = colors[next] || '#1e3a5f';
+    html += `<button class="btn btn-sm" onclick="moveToNextStage(${c.id})"
+      style="background:${color};color:#fff;margin-bottom:3px;display:block;width:100%;text-align:center">
+      &#8594; ${next}
+    </button>`;
+  }
+  // Reject button at any active stage
+  html += `<button class="btn btn-sm" onclick="rejectCandidate(${c.id})"
+    style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;display:block;width:100%;text-align:center">
+    &#10005; Reject
+  </button>`;
+  return html;
+}
+
+function moveToNextStage(id) {
+  const c = candidates.find(x => x.id == id);
+  if(!c) return;
+  const idx = STAGE_ORDER.indexOf(c.stage);
+  if(idx < 0 || idx >= STAGE_ORDER.length - 1) return;
+  const next = STAGE_ORDER[idx + 1];
+  if(!confirm(`Move "${c.name}" to → ${next}?`)) return;
+  c.stage = next;
+  c.lastUpdate = today();
+  saveData();
+  renderCandidates();
+  renderDashboard();
+}
+
+function rejectCandidate(id) {
+  const c = candidates.find(x => x.id == id);
+  if(!c) return;
+  const reason = prompt(`Rejection reason for "${c.name}" (optional):`);
+  if(reason === null) return; // cancelled
+  c.stage = 'Rejected';
+  c.rejectionReason = reason || c.rejectionReason;
+  c.lastUpdate = today();
+  saveData();
+  renderCandidates();
+  renderDashboard();
 }
 
 // ── TAB SWITCH ────────────────────────────────────────────────────────
